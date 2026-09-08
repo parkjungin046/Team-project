@@ -20,7 +20,6 @@ const PORTFOLIO_DATA = {
     status: "학부 재학",
     email: "jeongin.park.urban@gmail.com",
     phone: "010-82XX-XXXX",
-    location: "대한민국 서울 / 수도권",
     location: "대한민국 경기도 하남시",
     sloganBadge: "Green Smart City & Spatial Planner",
     mainHeadline: "데이터와 자연을 이어<br><span class=\"gradient-text\">더 살기 좋은 도시 공간</span>을<br>설계합니다.",
@@ -29,7 +28,6 @@ const PORTFOLIO_DATA = {
     
     // 네비게이션 및 배너에 표시되는 공간 좌표계 정보
     crs: "EPSG:5186 (Korea Central Belt 2010)",
-    coordinates: "LAT: 37.5665° N | LON: 126.9780° E",
     coordinates: "LAT: 37.5393° N | LON: 127.2148° E",
     
     // 소셜 및 포트폴리오 링크
