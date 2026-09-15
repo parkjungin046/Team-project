@@ -18,7 +18,7 @@ const PORTFOLIO_DATA = {
     department: "그린스마트시티학과",
     studentId: "24학번",
     status: "학부 재학",
-    email: "jeongin.park.urban@gmail.com",
+    email: "sally10008@naver.com",
     phone: "010-82XX-XXXX",
     location: "대한민국 경기도 하남시",
     sloganBadge: "Green Smart City & Spatial Planner",

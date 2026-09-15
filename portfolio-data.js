@@ -18,9 +18,8 @@ const PORTFOLIO_DATA = {
     department: "그린스마트시티학과",
     studentId: "24학번",
     status: "학부 재학",
-    email: "jeongin.park.urban@gmail.com",
-    phone: "010-82XX-XXXX",
-    location: "대한민국 서울 / 수도권",
+    email: "sally10008@naver.com",
+    phone: "010-5891-1318",
     location: "대한민국 경기도 하남시",
     sloganBadge: "Green Smart City & Spatial Planner",
     mainHeadline: "데이터와 자연을 이어<br><span class=\"gradient-text\">더 살기 좋은 도시 공간</span>을<br>설계합니다.",
@@ -29,14 +28,14 @@ const PORTFOLIO_DATA = {
     
     // 네비게이션 및 배너에 표시되는 공간 좌표계 정보
     crs: "EPSG:5186 (Korea Central Belt 2010)",
-    coordinates: "LAT: 37.5665° N | LON: 126.9780° E",
     coordinates: "LAT: 37.5393° N | LON: 127.2148° E",
     
     // 소셜 및 포트폴리오 링크
     socialLinks: {
       github: "https://github.com",
       notion: "https://notion.so",
-      linkedin: "https://linkedin.com"
+      linkedin: "https://linkedin.com",
+      department: "https://greensmartcity.smu.ac.kr/greensmartcity/index.do"
     }
   },
 
@@ -321,81 +320,37 @@ const PORTFOLIO_DATA = {
       {
         status: "prep", // "prep" (준비 중) 또는 "pass" (취득 완료)
         statusText: "준비 중",
-        title: "자연생태복원기사 (기사)",
-        org: "한국산업인력공단 (2025 취득 목표)",
-        desc: "생태계 구조 및 기능, 환경계획, 생태복원공학 및 생태조사방법론 필기 집중 학습 중"
+        title: "도시계획기사",
+        org: "취득 준비 중",
+        desc: "도시계획 관련 자격증 취득을 준비하고 있습니다."
       },
       {
-        status: "pass",
-        statusText: "이수 완료",
-        title: "QGIS 기반 공간정보 빅데이터 실무과정",
-        org: "공간정보산업진흥원 (2024.08)",
-        desc: "공간데이터 분석, 래스터 지형 분석 및 좌표계 변환 실무 40시간 이수"
-      },
-      {
-        status: "pass",
-        statusText: "취득 완료",
-        title: "AutoCAD 공인 인증 자격 (ACU)",
-        org: "Autodesk (2024.07)",
-        desc: "2D 건축 및 도시 도면 작도, 레이어 관리 및 정밀 출력 능력 인증"
+        status: "prep",
+        statusText: "준비 중",
+        title: "자연생태복원기사",
+        org: "취득 준비 중",
+        desc: "자연생태복원 관련 자격증 취득을 준비하고 있습니다."
       },
       {
         status: "pass",
         statusText: "취득 완료",
-        title: "컴퓨터활용능력 1급",
-        org: "대한상공회의소 (2024.02)",
-        desc: "고급 엑셀 데이터 분석, 매크로 및 관계형 데이터베이스(Access) 운용"
+        title: "포토샵 1급",
+        org: "취득 완료",
+        desc: "포토샵 1급 자격을 취득했습니다."
       }
     ],
 
     // 학술 활동 및 대외활동
     activities: [
       {
-        period: "2024.03 - 현재",
-        title: "그린스마트시티 학술 연구동아리 [UrbanEco]",
-        org: "교내 전공 학술동아리 (GIS 팀원)",
-        desc: "기후변화 대응 도시 열섬 완화 스터디 및 격주 공간정보 분석 세미나 발제 참여"
-      },
-      {
-        period: "2024.07 - 2024.09",
-        title: "청년 도시재생 & 생태거리 가로모니터링단",
-        org: "지자체 도시재생지원센터",
-        desc: "구도심 골목길 보행 안전성 및 녹지율 현장 모니터링 수행, 개선 제안서 제출"
-      },
-      {
-        period: "2024.05 - 2024.06",
-        title: "대학생 공간정보 데이터톤 (Datathon) 참가",
-        org: "공간정보융합연구회",
-        desc: "서울시 유동인구 및 공공데이터를 활용한 스마트 쉼터 최적 입지 모델 프로토타입 개발"
-      },
-      {
-        period: "2024.04 - 2024.11",
-        title: "도심 생태하천 모니터링 봉사단",
-        org: "환경실천연합회",
-        desc: "월 1회 수질 측정 및 하천변 수생식물·조류 서식지 관찰 기록 활동"
+        period: "2026-09-07~2026-12-14",
+        title: "자기설계 EnergyPlus 시뮬레이션 연구 프로젝트",
+        org: "교내 전공 프로젝트",
+        desc: "EnergyPlus 시뮬레이션을 활용해 실내 벽면녹화 면적 변화에 따른 건물의 계절별 냉난방 에너지 절감 효과를 정량적으로 분석하는 연구 프로젝트"
       }
     ],
 
     // 수상 및 학업 성과
-    awards: [
-      {
-        period: "2024.12",
-        title: "전공 캡스톤 디자인 아이디어 경진대회 [우수상]",
-        org: "단과대학 학장상",
-        desc: "‘QGIS 기반 도시열섬 취약지 분석 및 옥상녹화 우선입지 선정’ 프로젝트로 호평 수상"
-      },
-      {
-        period: "2024.10",
-        title: "스마트 그린도시 아이디어 공모전 [장려상]",
-        org: "한국스마트도시학회 대학생부문",
-        desc: "‘도심형 친환경 빗물순환 저류지 시스템 및 IoT 스마트 센서 연계안’ 제안"
-      },
-      {
-        period: "2024.06",
-        title: "2024-1학기 학업성적우수 장학",
-        org: "대학교 본부",
-        desc: "도시계획개론, 환경생태학, 기초GIS 등 전공 전과목 우수 성적 달성"
-      }
-    ]
+    awards: []
   }
 };

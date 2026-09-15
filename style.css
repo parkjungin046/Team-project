@@ -1211,6 +1211,50 @@ h1, h2, h3, h4, h5 {
   flex-grow: 1;
 }
 
+.project-card-focus,
+.project-card-result {
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+}
+
+.project-card-focus {
+  background: var(--bg-alt);
+}
+
+.project-card-result {
+  background: var(--primary-light);
+  border-color: rgba(16, 185, 129, 0.24);
+}
+
+.card-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.project-card-focus p,
+.project-card-result p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.project-card-result p {
+  color: var(--text-primary);
+}
+
 .project-tool-pills {
   display: flex;
   flex-wrap: wrap;
@@ -2114,5 +2158,139 @@ h1, h2, h3, h4, h5 {
 
   .hide-mobile {
     display: none;
+  }
+}
+
+/* --- A4 document / PDF output --- */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #ffffff;
+    --bg-alt: #f8fafc;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background: #ffffff;
+    color: var(--text-primary);
+    font-size: 10.5pt;
+  }
+
+  #gis-canvas,
+  #main-header,
+  .hero-actions,
+  .filter-tabs,
+  .project-open-btn,
+  .contact-form-panel,
+  .main-footer,
+  #back-to-top,
+  #toast,
+  #project-modal,
+  .mobile-drawer,
+  .drawer-overlay {
+    display: none !important;
+  }
+
+  .hero-section,
+  .content-section {
+    min-height: auto;
+    padding: 24px 0;
+    page-break-before: always;
+    break-before: page;
+  }
+
+  .hero-section {
+    page-break-before: auto;
+    break-before: auto;
+    padding-top: 12px;
+  }
+
+  .section-container {
+    max-width: none;
+    padding: 0;
+  }
+
+  .hero-container,
+  .about-grid,
+  .contact-grid {
+    display: block;
+  }
+
+  .hero-content {
+    margin-bottom: 20px;
+  }
+
+  .hero-visual {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .gis-card-visual {
+    transform: none;
+    box-shadow: none;
+    border-radius: 8px;
+  }
+
+  .about-profile-card {
+    position: static;
+    margin-bottom: 20px;
+    box-shadow: none;
+  }
+
+  .narrative-block,
+  .value-card,
+  .interest-areas-container,
+  .project-card,
+  .skill-category-card,
+  .career-item-card,
+  .contact-card-box {
+    box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .projects-grid,
+  .skills-grid,
+  .career-layout {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .project-card:hover,
+  .skill-category-card:hover,
+  .career-item-card:hover,
+  .value-card:hover {
+    transform: none;
+  }
+
+  .card-thumb-wrapper {
+    height: 130px;
+  }
+
+  .project-card-body,
+  .skill-category-card,
+  .career-item-card {
+    padding: 14px;
+  }
+
+  .contact-info-panel {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .bg-alt {
+    background: #ffffff !important;
   }
 }

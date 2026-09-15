@@ -165,7 +165,15 @@ function renderPortfolioData(data) {
               <span class="project-role"><i class="ph-bold ph-user-circle"></i> ${proj.role.split('/')[0].trim()}</span>
             </div>
             <h3 class="project-title">${proj.title}</h3>
+            <div class="project-card-focus">
+              <span class="card-label">문제 정의</span>
+              <p>${proj.modalDetails.background}</p>
+            </div>
             <p class="project-summary">${proj.summary}</p>
+            <div class="project-card-result">
+              <span class="card-label">주요 결과</span>
+              <p>${proj.modalDetails.results}</p>
+            </div>
             <div class="project-tool-pills">
               ${toolPills}
             </div>
@@ -341,6 +349,10 @@ function renderPortfolioData(data) {
           <a href="${p.socialLinks.linkedin}" target="_blank" rel="noopener noreferrer" class="social-chip" title="LinkedIn">
             <i class="ph-bold ph-linkedin-logo"></i>
             <span>LinkedIn</span>
+          </a>
+          <a href="${p.socialLinks.department}" target="_blank" rel="noopener noreferrer" class="social-chip department-homepage-chip" title="그린스마트시티학과 홈페이지">
+            <i class="ph-bold ph-buildings"></i>
+            <span>학과 홈페이지</span>
           </a>
         </div>
       </div>
@@ -711,26 +723,31 @@ function initProjectModal() {
 
       <div class="modal-body">
         <div class="modal-sec">
-          <h3 class="modal-section-title"><i class="ph-bold ph-target"></i> 추진 배경 및 문제 의식</h3>
+          <h3 class="modal-section-title"><i class="ph-bold ph-target"></i> 01. 문제 정의</h3>
           <p>${d.background}</p>
         </div>
 
         <div class="modal-sec">
-          <h3 class="modal-section-title"><i class="ph-bold ph-check-square"></i> 핵심 연구 및 설계 목표</h3>
+          <h3 class="modal-section-title"><i class="ph-bold ph-check-square"></i> 02. 목표</h3>
           <ul class="modal-bullet-list">
             ${objectivesHtml}
           </ul>
         </div>
 
         <div class="modal-sec">
-          <h3 class="modal-section-title"><i class="ph-bold ph-tree-structure"></i> 공간분석 및 설계 방법론</h3>
+          <h3 class="modal-section-title"><i class="ph-bold ph-tree-structure"></i> 03. 데이터 & 방법</h3>
           <ul class="modal-bullet-list">
             ${methodologyHtml}
           </ul>
         </div>
 
         <div class="modal-sec">
-          <h3 class="modal-section-title"><i class="ph-bold ph-trophy"></i> 주요 성과 및 인사이트</h3>
+          <h3 class="modal-section-title"><i class="ph-bold ph-user-circle"></i> 04. 본인의 기여</h3>
+          <p>${item.role}</p>
+        </div>
+
+        <div class="modal-sec">
+          <h3 class="modal-section-title"><i class="ph-bold ph-trophy"></i> 05. 결과와 의미</h3>
           <p>${d.results}</p>
         </div>
 
