@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPortfolioData(PORTFOLIO_DATA);
   }
 
+  // Render(온라인 백엔드)에 연결되어 있다면, 실시간 공개 프로젝트 데이터로 갱신 시도
+  fetchLiveManagedProjects();
+
   // Initialize interactive features
   initGisCanvas();
   initThemeToggle();
@@ -147,54 +150,7 @@ function renderPortfolioData(data) {
   }
 
   // 4) Project Section
-  const projectsContainer = document.getElementById("projects-container");
-  if (projectsContainer && data.projects) {
-    const curatedHtml = data.projects
-      .map((proj) => {
-        const toolPills = proj.tools.map((t) => `<span>${t}</span>`).join("");
-        const svgHeader = getProjectSvgThumbnail(proj.themeColor, proj.id);
-
-        return `
-        <article class="project-card" data-category="${proj.category}" data-id="${proj.id}">
-          <div class="card-thumb-wrapper">
-            <div class="project-badge ${proj.category.split(' ')[0]}">${proj.categoryLabel}</div>
-            <div class="card-visual-header ${proj.themeColor}">
-              ${svgHeader}
-            </div>
-          </div>
-          <div class="project-card-body">
-            <div class="project-meta">
-              <span class="project-year"><i class="ph-bold ph-calendar"></i> ${proj.period.split(' ')[0]}</span>
-              <span class="project-role"><i class="ph-bold ph-user-circle"></i> ${proj.role.split('/')[0].trim()}</span>
-            </div>
-            <h3 class="project-title">${proj.title}</h3>
-            <div class="project-card-focus">
-              <span class="card-label">문제 정의</span>
-              <p>${proj.modalDetails.background}</p>
-            </div>
-            <p class="project-summary">${proj.summary}</p>
-            <div class="project-card-result">
-              <span class="card-label">주요 결과</span>
-              <p>${proj.modalDetails.results}</p>
-            </div>
-            <div class="project-tool-pills">
-              ${toolPills}
-            </div>
-            <button class="project-open-btn" data-project-id="${proj.id}">
-              <span>상세 분석 보고서 보기</span>
-              <i class="ph-bold ph-arrow-up-right"></i>
-            </button>
-          </div>
-        </article>
-      `;
-      })
-      .join("");
-
-    // 관리자 페이지에서 "공개"로 등록한 프로젝트를 같은 그리드에 이어서 표시
-    const managedHtml = getManagedProjectsHtml();
-
-    projectsContainer.innerHTML = curatedHtml + managedHtml;
-  }
+  refreshProjectsSection();
 
   // 5) Skills Section
   const skillsContainer = document.getElementById("skills-container");
@@ -710,6 +666,79 @@ function getManagedProjectsHtml() {
       `;
     })
     .join("");
+}
+
+function getCuratedProjectsHtml(projects) {
+  return projects
+    .map((proj) => {
+      const toolPills = proj.tools.map((t) => `<span>${t}</span>`).join("");
+      const svgHeader = getProjectSvgThumbnail(proj.themeColor, proj.id);
+
+      return `
+        <article class="project-card" data-category="${proj.category}" data-id="${proj.id}">
+          <div class="card-thumb-wrapper">
+            <div class="project-badge ${proj.category.split(' ')[0]}">${proj.categoryLabel}</div>
+            <div class="card-visual-header ${proj.themeColor}">
+              ${svgHeader}
+            </div>
+          </div>
+          <div class="project-card-body">
+            <div class="project-meta">
+              <span class="project-year"><i class="ph-bold ph-calendar"></i> ${proj.period.split(' ')[0]}</span>
+              <span class="project-role"><i class="ph-bold ph-user-circle"></i> ${proj.role.split('/')[0].trim()}</span>
+            </div>
+            <h3 class="project-title">${proj.title}</h3>
+            <div class="project-card-focus">
+              <span class="card-label">문제 정의</span>
+              <p>${proj.modalDetails.background}</p>
+            </div>
+            <p class="project-summary">${proj.summary}</p>
+            <div class="project-card-result">
+              <span class="card-label">주요 결과</span>
+              <p>${proj.modalDetails.results}</p>
+            </div>
+            <div class="project-tool-pills">
+              ${toolPills}
+            </div>
+            <button class="project-open-btn" data-project-id="${proj.id}">
+              <span>상세 분석 보고서 보기</span>
+              <i class="ph-bold ph-arrow-up-right"></i>
+            </button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+// 큐레이션 프로젝트 + 관리자 등록 프로젝트를 합쳐서 그리드를 (다시) 그린다.
+// 최초 렌더링뿐 아니라, 실시간 API에서 새 데이터를 받아왔을 때도 재사용된다.
+function refreshProjectsSection() {
+  const projectsContainer = document.getElementById("projects-container");
+  if (!projectsContainer || typeof PORTFOLIO_DATA === "undefined" || !PORTFOLIO_DATA.projects) return;
+
+  const curatedHtml = getCuratedProjectsHtml(PORTFOLIO_DATA.projects);
+  const managedHtml = getManagedProjectsHtml();
+  projectsContainer.innerHTML = curatedHtml + managedHtml;
+}
+
+// Render 등 온라인 백엔드를 붙인 경우에만 동작한다.
+// index.html에서 window.PORTFOLIO_API_BASE 값을 설정하지 않으면(로컬 전용 모드)
+// 이 함수는 그냥 아무 것도 하지 않고 끝나며, 기존 정적 데이터 그대로 표시된다.
+async function fetchLiveManagedProjects() {
+  const base = window.PORTFOLIO_API_BASE;
+  if (!base) return;
+
+  try {
+    const res = await fetch(`${base.replace(/\/$/, "")}/api/projects`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`API 응답 오류 (HTTP ${res.status})`);
+    const data = await res.json();
+    window.ADMIN_MANAGED_PROJECTS = Array.isArray(data.projects) ? data.projects : [];
+    refreshProjectsSection();
+  } catch (err) {
+    // 실시간 데이터를 못 받아오면 조용히 실패하고, 배포 시점에 생성해둔 정적 데이터를 그대로 보여준다.
+    console.warn("실시간 프로젝트 데이터를 불러오지 못했습니다. 정적 데이터로 대체 표시합니다.", err);
+  }
 }
 
 /* ==========================================================================

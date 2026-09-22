@@ -404,6 +404,14 @@
   <!-- 1-1. 관리자 페이지에서 "공개"로 등록한 프로젝트 (자동 생성 파일, 직접 수정 금지) -->
   <script src="data/public-projects.generated.js"></script>
 
+  <!-- 1-2. (선택) Render 등에 관리자 백엔드를 배포했다면, 그 주소를 여기에 채워 넣으면
+       페이지 로딩 시 실시간으로 최신 "공개" 프로젝트를 가져옵니다.
+       예: window.PORTFOLIO_API_BASE = "https://portfolio-admin.onrender.com";
+       비워두면(기본값) 위의 정적 파일(public-projects.generated.js) 내용만 사용합니다. -->
+  <script>
+    window.PORTFOLIO_API_BASE = "";
+  </script>
+
   <!-- 2. Share Menu & Structured PDF Export (loads pdfmake on demand) -->
   <script src="share-export.js"></script>
 

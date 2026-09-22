@@ -1,0 +1,29 @@
+# Render Blueprint 설정 파일.
+# Render 대시보드 → "New +" → "Blueprint" → 이 저장소 선택 → 이 파일을 그대로 읽어서
+# 웹 서비스(관리자 백엔드)와 PostgreSQL 데이터베이스를 한 번에 만들어 준다.
+#
+# ⚠️ ADMIN_PASSWORD_HASH 값은 여기 적지 않는다 (sync: false = Render 대시보드에서
+#    직접 입력하라는 뜻). 절대 이 파일이나 GitHub에 비밀번호/해시를 적지 말 것.
+
+databases:
+  - name: portfolio-admin-db
+    plan: free
+    databaseName: portfolio_admin
+    user: portfolio_admin
+
+services:
+  - type: web
+    name: portfolio-admin
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: portfolio-admin-db
+          property: connectionString
