@@ -1,6 +1,6 @@
 /**
  * ==========================================================================
- * PARK JEONG IN - GREEN SMART CITY & GIS PORTFOLIO
+ * PARK JUNG IN - GREEN SMART CITY & GIS PORTFOLIO
  * Application Engine & Dynamic Data Renderer
  * ==========================================================================
  */

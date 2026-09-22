@@ -14,7 +14,7 @@ const PORTFOLIO_DATA = {
   // ------------------------------------------------------------------------
   profile: {
     name: "박정인",
-    enName: "Park Jeong-in",
+    enName: "Park Jung-in",
     department: "그린스마트시티학과",
     studentId: "24학번",
     status: "학부 재학",
@@ -23,7 +23,7 @@ const PORTFOLIO_DATA = {
     location: "대한민국 경기도 하남시",
     sloganBadge: "Green Smart City & Spatial Planner",
     mainHeadline: "데이터와 자연을 이어<br><span class=\"gradient-text\">더 살기 좋은 도시 공간</span>을<br>설계합니다.",
-    subHeadline: "안녕하세요! <strong>24학번 그린스마트시티학과 박정인</strong>입니다.<br>GIS 공간정보 빅데이터 분석과 자연생태복원 기술을 융합하여,<br class=\"hide-mobile\">사람과 환경이 조화롭게 지속 가능한 스마트 도시의 내일을 연구하고 계획합니다.",
+    subHeadline: "안녕하세요! <strong>24학번 그린스마트시티학과 박정인</strong>입니다.<br>GIS 공간정보 빅데이터 분석과 자연생태복원 기술을 융합하여, <br class=\"hide-mobile\">사람과 환경이 조화롭게 지속 가능한 스마트 도시의 내일을 연구하고 계획합니다.",
     quote: "“공간에 쌓이는 빅데이터를 이해하고, 자연 생태계의 복원력을 도시 인프라에 심어내는 전문가로 성장하고 있습니다.”",
     
     // 네비게이션 및 배너에 표시되는 공간 좌표계 정보

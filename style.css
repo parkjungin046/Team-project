@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PARK JEONG IN - GREEN SMART CITY & GIS PORTFOLIO STYLESHEET
+   PARK JUNG IN - GREEN SMART CITY & GIS PORTFOLIO STYLESHEET
    Aesthetics: Eco-Tech, Clean Emerald & Deep Slate, Glassmorphism, Responsive
    ========================================================================== */
 
@@ -430,6 +430,96 @@ h1, h2, h3, h4, h5 {
 
 .mobile-only {
   display: none;
+}
+
+/* Share Menu (Link / PDF) */
+.share-menu-wrap {
+  position: relative;
+}
+
+.share-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 248px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 120;
+  transform-origin: top right;
+  animation: shareMenuIn 0.18s ease-out;
+}
+
+.share-menu[hidden] {
+  display: none;
+}
+
+@keyframes shareMenuIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.share-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.share-menu-item:hover,
+.share-menu-item:focus-visible {
+  background: var(--bg-alt);
+  outline: none;
+}
+
+.share-menu-item i {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+.share-menu-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.share-menu-text strong {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.share-menu-text small {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.share-menu-item[aria-busy="true"] {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.share-spin {
+  display: inline-block;
+  animation: shareSpin 0.9s linear infinite;
+}
+
+@keyframes shareSpin {
+  to { transform: rotate(360deg); }
 }
 
 /* Mobile Drawer */

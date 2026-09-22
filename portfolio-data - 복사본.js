@@ -14,7 +14,7 @@ const PORTFOLIO_DATA = {
   // ------------------------------------------------------------------------
   profile: {
     name: "박정인",
-    enName: "Park Jeong-in",
+    enName: "Park Jung-in",
     department: "그린스마트시티학과",
     studentId: "24학번",
     status: "학부 재학",

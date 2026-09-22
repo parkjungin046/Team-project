@@ -1,6 +1,6 @@
 /**
  * ==========================================================================
- * PARK JEONG IN - GREEN SMART CITY & GIS PORTFOLIO
+ * PARK JUNG IN - GREEN SMART CITY & GIS PORTFOLIO
  * Application Engine & Dynamic Data Renderer
  * ==========================================================================
  */
@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initClipboardActions();
   initContactForm();
   initBackToTop();
+  initShareMenu();
 });
 
 /* ==========================================================================
@@ -39,7 +40,9 @@ function renderPortfolioData(data) {
   setText("footer-logo-dept", `${p.department} ${p.studentId} 포트폴리오`);
 
   // 2) Hero Section
-  setHTML("hero-badge", `<i class="ph-fill ph-tree-evergreen"></i> <span>${p.sloganBadge}</span>`);
+  setText("hero-badge", p.sloganBadge);
+  setText("hero-display-name", p.enName.replace(/-/g, " ").toUpperCase());
+  setText("hero-handle", `${p.department} ${p.studentId}`);
   setHTML("hero-main-title", p.mainHeadline);
   setHTML("hero-sub-title", p.subHeadline);
 

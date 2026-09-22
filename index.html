@@ -14,13 +14,15 @@
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
   
   <!-- Phosphor Icons for modern sleek icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   
   <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css">
+  <!-- Editorial Theme (delete this line to restore the original design) -->
+  <link rel="stylesheet" href="theme-editorial.css">
 </head>
 <body data-theme="light">
   <!-- Interactive GIS Grid Canvas Background -->
@@ -36,7 +38,7 @@
           <i class="ph-bold ph-planet"></i>
         </div>
         <div class="logo-text-group">
-          <span class="logo-name" id="nav-logo-name">PARK JEONG IN</span>
+          <span class="logo-name" id="nav-logo-name">PARK JUNG IN</span>
           <span class="logo-dept" id="nav-logo-dept">그린스마트시티 24'</span>
         </div>
       </a>
@@ -65,6 +67,29 @@
         <button id="mobile-menu-btn" class="icon-btn mobile-only" aria-label="메뉴 열기">
           <i class="ph-bold ph-list"></i>
         </button>
+
+        <!-- Share: link copy / structured PDF export (share-export.js) -->
+        <div class="share-menu-wrap">
+          <button id="share-toggle" class="icon-btn" aria-label="공유하기" title="공유하기" aria-haspopup="menu" aria-expanded="false" aria-controls="share-menu">
+            <i class="ph-bold ph-share-network"></i>
+          </button>
+          <div id="share-menu" class="share-menu" role="menu" hidden>
+            <button type="button" class="share-menu-item" id="share-link-btn" role="menuitem">
+              <i class="ph-bold ph-link-simple"></i>
+              <span class="share-menu-text">
+                <strong>링크 공유</strong>
+                <small>포트폴리오 주소 복사</small>
+              </span>
+            </button>
+            <button type="button" class="share-menu-item" id="share-pdf-btn" role="menuitem">
+              <i class="ph-bold ph-file-pdf"></i>
+              <span class="share-menu-text">
+                <strong>PDF 공유</strong>
+                <small id="share-pdf-desc">핵심 내용을 문서로 저장</small>
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -73,7 +98,7 @@
   <div id="mobile-drawer" class="mobile-drawer">
     <div class="drawer-header">
       <div class="logo-text-group">
-        <span class="logo-name" id="drawer-logo-name">PARK JEONG IN</span>
+        <span class="logo-name" id="drawer-logo-name">PARK JUNG IN</span>
         <span class="logo-dept" id="drawer-logo-dept">그린스마트시티학과</span>
       </div>
       <button id="drawer-close-btn" class="icon-btn" aria-label="메뉴 닫기">
@@ -99,150 +124,65 @@
          1. HOME (HERO SECTION)
          ====================================================================== -->
     <section id="home" class="hero-section">
-      <div class="section-container hero-container">
-        <div class="hero-content">
-          <div class="hero-pill-badge animate-fade-in" id="hero-badge">
-            <i class="ph-fill ph-tree-evergreen"></i>
-            <span>Green Smart City & Spatial Planner</span>
-          </div>
+      <div class="hero-orb" aria-hidden="true"></div>
 
-          <h1 class="hero-title animate-fade-in delay-1" id="hero-main-title">
+      <div class="section-container hero-container">
+        <p class="hero-kicker animate-fade-in" id="hero-badge">Green Smart City &amp; Spatial Planner</p>
+
+        <div class="hero-body animate-fade-in delay-1">
+          <p class="hero-lead" id="hero-main-title">
             데이터와 자연을 이어<br>
             <span class="gradient-text">더 살기 좋은 도시 공간</span>을<br>
             설계합니다.
-          </h1>
+          </p>
 
-          <p class="hero-subtitle animate-fade-in delay-2" id="hero-sub-title">
+          <p class="hero-subtitle" id="hero-sub-title">
             안녕하세요! <strong>24학번 그린스마트시티학과 박정인</strong>입니다.<br>
             GIS 공간정보 빅데이터 분석과 자연생태복원 기술을 융합하여,<br class="hide-mobile">
             사람과 환경이 조화롭게 지속 가능한 스마트 도시의 내일을 연구하고 계획합니다.
           </p>
 
-          <!-- Core Focus Badges -->
-          <div class="hero-tags animate-fade-in delay-3">
-            <span class="tag-badge"><i class="ph-bold ph-compass"></i> 도시계획 (Urban Planning)</span>
-            <span class="tag-badge"><i class="ph-bold ph-map-trifold"></i> GIS & 공간정보 (Spatial Info)</span>
-            <span class="tag-badge"><i class="ph-bold ph-plant"></i> 자연생태복원 (Eco-Restoration)</span>
-            <span class="tag-badge"><i class="ph-bold ph-buildings"></i> 스마트시티 (Smart City)</span>
-          </div>
-
-          <!-- Hero Action Buttons -->
-          <div class="hero-actions animate-fade-in delay-4">
+          <div class="hero-actions">
             <a href="#projects" class="btn btn-primary">
-              <i class="ph-bold ph-arrow-circle-right"></i>
               <span>프로젝트 둘러보기</span>
+              <i class="ph-bold ph-arrow-down-right"></i>
             </a>
             <a href="#about" class="btn btn-secondary">
-              <i class="ph-bold ph-identification-card"></i>
-              <span>소개 & 비전 보기</span>
+              <span>소개 &amp; 비전 보기</span>
             </a>
             <button class="btn btn-ghost" id="copy-email-hero-btn" title="이메일 복사하기">
               <i class="ph-bold ph-copy"></i>
               <span>이메일 복사</span>
             </button>
           </div>
-
-          <!-- Quick Stats Strip (Dynamically Rendered from portfolio-data.js) -->
-          <div class="hero-stats-strip animate-fade-in delay-5" id="hero-stats-container">
-            <!-- Injected via JavaScript -->
-          </div>
         </div>
 
-        <!-- Hero Visual Graphic Element -->
-        <div class="hero-visual animate-scale-in">
-          <div class="gis-card-visual">
-            <div class="card-glass-header">
-              <div class="glass-dots">
-                <span class="dot red"></span>
-                <span class="dot yellow"></span>
-                <span class="dot green"></span>
-              </div>
-              <span class="glass-title">GIS Spatial Layer Analysis</span>
-            </div>
-            
-            <div class="gis-visual-map">
-              <svg viewBox="0 0 420 340" class="spatial-svg" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="polyGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
-                    <stop offset="100%" stop-color="#059669" stop-opacity="0.15"/>
-                  </linearGradient>
-                  <linearGradient id="polyGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#0284c7" stop-opacity="0.3"/>
-                    <stop offset="100%" stop-color="#0369a1" stop-opacity="0.1"/>
-                  </linearGradient>
-                  <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#10b981"/>
-                    <stop offset="50%" stop-color="#38bdf8"/>
-                    <stop offset="100%" stop-color="#10b981"/>
-                  </linearGradient>
-                </defs>
+        <!-- Display name (filled from portfolio-data.js enName) -->
+        <h1 class="hero-display animate-fade-in delay-2">
+          <span class="hero-display-line" id="hero-display-name">PARK JUNG IN</span>
+          <span class="hero-display-line">Portfolio</span>
+        </h1>
 
-                <!-- Grid Background -->
-                <pattern id="grid-pattern" width="30" height="30" patternUnits="userSpaceOnUse">
-                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="currentColor" stroke-opacity="0.08" stroke-width="1"/>
-                </pattern>
-                <rect width="100%" height="100%" fill="url(#grid-pattern)" />
-
-                <!-- Contour Ecological Zones -->
-                <path d="M 40 80 Q 90 40, 160 70 T 300 60 T 380 120 Q 360 220, 280 250 T 120 280 Q 30 220, 40 80 Z" fill="url(#polyGrad1)" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 2" />
-                <path d="M 80 120 Q 140 90, 210 110 T 330 160 Q 310 230, 220 230 T 90 200 Z" fill="url(#polyGrad2)" stroke="#0284c7" stroke-width="1.5" />
-
-                <!-- River/Corridor Stream Line -->
-                <path d="M 20 290 C 100 240, 150 180, 240 150 S 340 70, 400 30" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round" />
-
-                <!-- Smart City Sensor Nodes & Connections -->
-                <g class="network-nodes">
-                  <line x1="120" y1="140" x2="200" y2="100" stroke="url(#lineGrad)" stroke-width="1.5"/>
-                  <line x1="200" y1="100" x2="280" y2="160" stroke="url(#lineGrad)" stroke-width="1.5"/>
-                  <line x1="120" y1="140" x2="180" y2="210" stroke="url(#lineGrad)" stroke-width="1.5"/>
-                  <line x1="180" y1="210" x2="280" y2="160" stroke="url(#lineGrad)" stroke-width="1.5"/>
-                  <line x1="280" y1="160" x2="350" y2="120" stroke="url(#lineGrad)" stroke-width="1.5"/>
-
-                  <!-- Active Pulse Nodes -->
-                  <circle cx="120" cy="140" r="6" fill="#10b981" />
-                  <circle cx="120" cy="140" r="12" fill="#10b981" opacity="0.3" class="pulse-ring" />
-                  
-                  <circle cx="200" cy="100" r="5" fill="#38bdf8" />
-                  <circle cx="280" cy="160" r="7" fill="#10b981" />
-                  <circle cx="280" cy="160" r="14" fill="#10b981" opacity="0.3" class="pulse-ring" />
-
-                  <circle cx="180" cy="210" r="5" fill="#38bdf8" />
-                  <circle cx="350" cy="120" r="5" fill="#10b981" />
-                </g>
-
-                <!-- Urban Feature Markers -->
-                <g transform="translate(110, 115)">
-                  <rect width="20" height="20" rx="4" fill="#0f766e" />
-                  <text x="10" y="14" font-size="10" fill="#ffffff" text-anchor="middle" font-family="sans-serif">🌱</text>
-                </g>
-                <g transform="translate(270, 135)">
-                  <rect width="20" height="20" rx="4" fill="#0369a1" />
-                  <text x="10" y="14" font-size="10" fill="#ffffff" text-anchor="middle" font-family="sans-serif">🏙️</text>
-                </g>
-              </svg>
-            </div>
-
-            <!-- Floating Data Widgets on Visual Card -->
-            <div class="floating-widget top-right">
-              <i class="ph-fill ph-chart-polar"></i>
-              <div>
-                <div class="widget-title">생태 네트워크 연결성</div>
-                <div class="widget-val">94.8% <span class="trend">▲ Optimal</span></div>
-              </div>
-            </div>
-
-            <div class="floating-widget bottom-left">
-              <i class="ph-fill ph-crosshair-simple"></i>
-              <div>
-                <div class="widget-title">입지 최적화 스코어</div>
-                <div class="widget-val">9.2 / 10 <span class="tag">QGIS Verified</span></div>
-              </div>
-            </div>
-          </div>
+        <div class="hero-meta animate-fade-in delay-3">
+          <ul class="hero-fields">
+            <li>Urban Planning</li>
+            <li>GIS &amp; Spatial Data</li>
+            <li>Smart City</li>
+            <li>Eco-Restoration</li>
+          </ul>
+          <span class="hero-handle" id="hero-handle">그린스마트시티학과 24학번</span>
         </div>
       </div>
     </section>
+
+    <!-- Quick Stats Band (Dynamically Rendered from portfolio-data.js) -->
+    <div class="hero-stats-band">
+      <div class="section-container">
+        <div class="hero-stats-strip" id="hero-stats-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+    </div>
 
     <!-- ======================================================================
          2. ABOUT SECTION (소개 & 비전)
@@ -405,7 +345,7 @@
     <div class="footer-container">
       <div class="footer-brand">
         <div class="logo-text-group">
-          <span class="logo-name" id="footer-logo-name">PARK JEONG IN</span>
+          <span class="logo-name" id="footer-logo-name">PARK JUNG IN</span>
           <span class="logo-dept" id="footer-logo-dept">그린스마트시티학과 24학번 포트폴리오</span>
         </div>
         <p class="footer-motto">“자연의 생명력과 디지털 공간정보 기술이 공존하는 스마트 미래를 만듭니다.”</p>
@@ -428,7 +368,7 @@
           <span class="pulse-dot"></span>
           <span>Spatial System Active</span>
         </div>
-        <p>© 2024-2026 Park Jeong-in. All rights reserved.</p>
+        <p>© 2024-2026 Park Jung-in. All rights reserved.</p>
         <p class="tech-note">Designed & Built for Green Smart City & GIS Portfolio</p>
       </div>
     </div>
@@ -461,7 +401,10 @@
   <!-- 1. Portfolio Data Configuration (Edit content easily in this file) -->
   <script src="portfolio-data.js"></script>
 
-  <!-- 2. Application Logic Script -->
+  <!-- 2. Share Menu & Structured PDF Export (loads pdfmake on demand) -->
+  <script src="share-export.js"></script>
+
+  <!-- 3. Application Logic Script -->
   <script src="app.js"></script>
 </body>
 </html>
