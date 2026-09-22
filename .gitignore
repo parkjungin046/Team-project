@@ -1,0 +1,12 @@
+# 의존성
+node_modules/
+
+# 관리자 비밀번호 해시 등 민감한 설정 (절대 GitHub에 올리지 않음)
+.env
+
+# 관리자 원본 데이터 (초안 포함 - 공개 전 내용이므로 저장소에 올리지 않음)
+data/projects.json
+
+# 로그
+*.log
+npm-debug.log*

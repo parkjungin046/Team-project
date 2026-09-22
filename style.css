@@ -1264,6 +1264,7 @@ h1, h2, h3, h4, h5 {
 .project-badge.smartcity { background: #0284c7; }
 .project-badge.eco { background: #0d9488; }
 .project-badge.research { background: #d97706; }
+.project-badge.managed { background: #475569; }
 
 .project-card-body {
   padding: 24px;

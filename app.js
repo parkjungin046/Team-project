@@ -149,7 +149,7 @@ function renderPortfolioData(data) {
   // 4) Project Section
   const projectsContainer = document.getElementById("projects-container");
   if (projectsContainer && data.projects) {
-    projectsContainer.innerHTML = data.projects
+    const curatedHtml = data.projects
       .map((proj) => {
         const toolPills = proj.tools.map((t) => `<span>${t}</span>`).join("");
         const svgHeader = getProjectSvgThumbnail(proj.themeColor, proj.id);
@@ -189,6 +189,11 @@ function renderPortfolioData(data) {
       `;
       })
       .join("");
+
+    // 관리자 페이지에서 "공개"로 등록한 프로젝트를 같은 그리드에 이어서 표시
+    const managedHtml = getManagedProjectsHtml();
+
+    projectsContainer.innerHTML = curatedHtml + managedHtml;
   }
 
   // 5) Skills Section
@@ -648,6 +653,66 @@ function initProjectFiltering() {
 }
 
 /* ==========================================================================
+   5-1. ADMIN-MANAGED PROJECTS (관리자 페이지에서 "공개"로 등록한 프로젝트)
+   data/public-projects.generated.js 가 존재하면 window.ADMIN_MANAGED_PROJECTS 에
+   공개 프로젝트 배열이 채워진다. 기존 project-card 스타일을 그대로 재사용한다.
+   ========================================================================== */
+const MANAGED_PROJECT_THEMES = ["green-theme", "blue-theme", "teal-theme", "indigo-theme", "slate-theme"];
+
+function escapeHtml(str) {
+  return String(str || "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[c]));
+}
+
+function getManagedProjectsHtml() {
+  const managedProjects = window.ADMIN_MANAGED_PROJECTS;
+  if (!Array.isArray(managedProjects) || managedProjects.length === 0) return "";
+
+  return managedProjects
+    .map((proj, idx) => {
+      const theme = MANAGED_PROJECT_THEMES[idx % MANAGED_PROJECT_THEMES.length];
+      const svgHeader = getProjectSvgThumbnail(theme, proj.id);
+      const noteLine = proj.notes ? ` · ${escapeHtml(proj.notes)}` : "";
+
+      return `
+        <article class="project-card" data-category="managed" data-id="${escapeHtml(proj.id)}">
+          <div class="card-thumb-wrapper">
+            <div class="project-badge managed">관리자 등록</div>
+            <div class="card-visual-header ${theme}">
+              ${svgHeader}
+            </div>
+          </div>
+          <div class="project-card-body">
+            <div class="project-meta">
+              <span class="project-year"><i class="ph-bold ph-calendar"></i> ${escapeHtml(proj.date)}</span>
+              <span class="project-role"><i class="ph-bold ph-user-circle"></i> ${escapeHtml(proj.role)}</span>
+            </div>
+            <h3 class="project-title">${escapeHtml(proj.title)}</h3>
+            <div class="project-card-focus">
+              <span class="card-label">프로젝트 설명</span>
+              <p>${escapeHtml(proj.description)}</p>
+            </div>
+            <div class="project-card-result">
+              <span class="card-label">참여 인원</span>
+              <p>${escapeHtml(proj.participants)}${noteLine}</p>
+            </div>
+            <button class="project-open-btn" data-project-id="${escapeHtml(proj.id)}">
+              <span>상세 내용 보기</span>
+              <i class="ph-bold ph-arrow-up-right"></i>
+            </button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+/* ==========================================================================
    6. PROJECT MODAL SYSTEM
    ========================================================================== */
 function initProjectModal() {
@@ -662,13 +727,22 @@ function initProjectModal() {
 
     e.preventDefault();
     const pId = btn.getAttribute("data-project-id");
-    
-    // Find project from PORTFOLIO_DATA
-    const project = PORTFOLIO_DATA.projects.find((pr) => pr.id === pId);
-    if (!project) return;
 
-    renderModalContent(project);
-    openModal();
+    // Find project from PORTFOLIO_DATA (기존 큐레이션 프로젝트)
+    const project = PORTFOLIO_DATA.projects.find((pr) => pr.id === pId);
+    if (project) {
+      renderModalContent(project);
+      openModal();
+      return;
+    }
+
+    // 없으면 관리자 페이지에서 등록한 프로젝트에서 찾기
+    const managedProjects = window.ADMIN_MANAGED_PROJECTS || [];
+    const managedProject = managedProjects.find((pr) => pr.id === pId);
+    if (managedProject) {
+      renderManagedModalContent(managedProject);
+      openModal();
+    }
   });
 
   function openModal() {
@@ -760,6 +834,47 @@ function initProjectModal() {
             ${toolsHtml}
           </div>
         </div>
+      </div>
+    `;
+  }
+
+  // 관리자 페이지에서 등록한 프로젝트용 간단 모달 (title/role/description/date/participants/notes)
+  function renderManagedModalContent(item) {
+    modalContent.innerHTML = `
+      <div class="modal-header-hero">
+        <span class="modal-badge">관리자 등록</span>
+        <h2 class="modal-title">${escapeHtml(item.title)}</h2>
+
+        <div class="modal-meta-grid">
+          <div class="modal-meta-item">
+            <span class="meta-label">날짜</span>
+            <span class="meta-val">${escapeHtml(item.date)}</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="meta-label">수행 역할</span>
+            <span class="meta-val">${escapeHtml(item.role)}</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="meta-label">참여 인원</span>
+            <span class="meta-val">${escapeHtml(item.participants)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-sec">
+          <h3 class="modal-section-title"><i class="ph-bold ph-target"></i> 프로젝트 설명</h3>
+          <p>${escapeHtml(item.description)}</p>
+        </div>
+
+        ${
+          item.notes
+            ? `<div class="modal-sec">
+                <h3 class="modal-section-title"><i class="ph-bold ph-note"></i> 참고사항</h3>
+                <p>${escapeHtml(item.notes)}</p>
+              </div>`
+            : ""
+        }
       </div>
     `;
   }

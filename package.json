@@ -1,0 +1,17 @@
+{
+  "name": "team-project-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "박정인 포트폴리오 웹사이트 + 로컬 전용 관리자 페이지",
+  "scripts": {
+    "admin": "node admin/server.js",
+    "site": "npx serve -l 5173 .",
+    "set-admin-password": "node scripts/hash-password.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  }
+}
