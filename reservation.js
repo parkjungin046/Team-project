@@ -2,9 +2,13 @@
  * ==========================================================================
  * RESERVATION PAGE - 캘린더 예약 폼
  * 평일(공휴일 제외) 날짜 선택 + 30분 단위 시간 선택 + 방문자 정보 입력 +
- * 최종 확인 팝업 + (현재 단계) 브라우저 로컬 저장까지 처리한다.
+ * 최종 확인 팝업 + Formspree를 통한 운영자 이메일 전달까지 처리한다.
  * ==========================================================================
  */
+
+// Formspree 폼 엔드포인트. 이 폼이 운영자(박정인) 이메일로 제출 내용을 전달하도록
+// formspree.io 대시보드에서 이미 설정되어 있다.
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mgaovvav";
 
 // 2026년 대한민국 법정공휴일·대체공휴일 (공개된 공휴일 정보를 종합해 수기로 반영).
 // 연도가 바뀌면 이 목록을 갱신해야 한다.
@@ -285,6 +289,7 @@ function openConfirmModal() {
   document.getElementById("confirm-name").textContent = document.getElementById("res-name").value.trim();
   document.getElementById("confirm-email").textContent = document.getElementById("res-email").value.trim();
   document.getElementById("confirm-purpose").textContent = document.getElementById("res-purpose").value.trim();
+  document.getElementById("confirm-modal-error").hidden = true;
 
   const modal = document.getElementById("reservation-confirm-modal");
   modal.classList.add("open");
@@ -299,7 +304,7 @@ function closeConfirmModal() {
   document.body.style.overflow = "";
 }
 
-function finalizeReservation() {
+async function finalizeReservation() {
   const reservation = {
     id: `res_${Date.now()}`,
     date: resState.selectedDate,
@@ -311,17 +316,61 @@ function finalizeReservation() {
     submittedAt: new Date().toISOString(),
   };
 
-  saveReservationLocally(reservation);
-  closeConfirmModal();
-  resetReservationForm();
+  const confirmBtn = document.getElementById("confirm-submit-btn");
+  const confirmBtnLabel = document.getElementById("confirm-submit-btn-label");
+  const errorMsg = document.getElementById("confirm-modal-error");
+  const originalLabel = confirmBtnLabel.textContent;
 
-  if (typeof showToast === "function") {
-    showToast("🗓️ 예약 신청이 저장되었습니다. (현재는 이 브라우저에 임시 저장되는 테스트 단계입니다)");
+  confirmBtn.disabled = true;
+  confirmBtnLabel.textContent = "전송 중...";
+  errorMsg.hidden = true;
+
+  // 로컬 백업: 이메일 전송 성공 여부와 무관하게 방문자 브라우저에도 남겨 둔다.
+  saveReservationLocally(reservation);
+
+  let emailSent = false;
+  try {
+    emailSent = await sendReservationEmail(reservation);
+  } catch (err) {
+    console.warn("Formspree 전송 중 오류가 발생했습니다.", err);
+  }
+
+  confirmBtn.disabled = false;
+  confirmBtnLabel.textContent = originalLabel;
+
+  if (emailSent) {
+    closeConfirmModal();
+    resetReservationForm();
+    if (typeof showToast === "function") {
+      showToast("🗓️ 예약 신청이 접수되어 이메일로 전달되었습니다!");
+    }
+  } else {
+    errorMsg.hidden = false;
   }
 }
 
-// 현재는 백엔드 연동 전이라, 제출 내용을 방문자의 브라우저(localStorage)에만 남겨 둔다.
-// 추후 운영자에게 실제로 전달되게 하려면 서버 API 연동이 필요하다.
+// Formspree로 예약 내용을 전송한다. res-email 입력값을 "email" 키로 보내면
+// Formspree가 이를 Reply-To로 인식해, 운영자가 받은 이메일에서 바로 답장할 수 있다.
+async function sendReservationEmail(reservation) {
+  const response = await fetch(FORMSPREE_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      name: reservation.name,
+      email: reservation.email,
+      date: reservation.dateLabel,
+      time: reservation.time,
+      purpose: reservation.purpose,
+      _subject: `[포트폴리오 방문 예약] ${reservation.name}님 - ${reservation.dateLabel} ${reservation.time}`,
+    }),
+  });
+  return response.ok;
+}
+
+// 이메일 전송 성공 여부와 무관하게, 제출 내용을 방문자의 브라우저(localStorage)에도 남겨 둔다.
 function saveReservationLocally(reservation) {
   try {
     const existing = JSON.parse(localStorage.getItem(RESERVATION_STORAGE_KEY) || "[]");

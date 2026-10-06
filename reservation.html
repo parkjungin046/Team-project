@@ -226,12 +226,18 @@
 
         <p class="confirm-modal-note">
           <i class="ph-bold ph-info"></i>
-          확정하시면 입력하신 정보가 예약 상담 목적으로 저장됩니다.
+          확정하시면 입력하신 정보가 예약 상담 목적으로 운영자 이메일에 전달됩니다.
+        </p>
+        <p class="confirm-modal-error" id="confirm-modal-error" hidden>
+          <i class="ph-bold ph-warning-circle"></i>
+          전송에 실패했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.
         </p>
 
         <div class="confirm-modal-actions">
           <button type="button" class="btn btn-secondary" id="confirm-edit-btn">수정하기</button>
-          <button type="button" class="btn btn-primary" id="confirm-submit-btn">예약 확정하기</button>
+          <button type="button" class="btn btn-primary" id="confirm-submit-btn">
+            <span id="confirm-submit-btn-label">예약 확정하기</span>
+          </button>
         </div>
       </div>
     </div>
