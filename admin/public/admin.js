@@ -31,7 +31,21 @@
   const duplicatePanel = document.getElementById("duplicate-panel");
   const duplicateGroupsEl = document.getElementById("duplicate-groups");
 
+  const tabBtns = document.querySelectorAll(".admin-tab-btn");
+  const tabPanels = {
+    projects: document.getElementById("tab-panel-projects"),
+    reservations: document.getElementById("tab-panel-reservations"),
+  };
+  const reservationSummaryEl = document.getElementById("reservation-summary");
+  const reservationFiltersEl = document.getElementById("reservation-filters");
+  const reservationTableBody = document.getElementById("reservation-table-body");
+  const reservationEmptyMsg = document.getElementById("reservation-empty-msg");
+
   const REQUIRED_FOR_PUBLISH = ["title", "role", "description", "date", "participants"];
+  const RESERVATION_STATUS_LABELS = { received: "접수", confirmed: "확정", cancelled: "취소" };
+
+  let reservationsCache = [];
+  let currentReservationFilter = "all";
 
   async function api(url, options = {}) {
     const res = await fetch(url, {
@@ -84,10 +98,26 @@
     showScreen(false);
   });
 
+  /* ---------------- 탭 전환 ---------------- */
+
+  tabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      tabBtns.forEach((b) => {
+        b.classList.remove("active");
+        b.setAttribute("aria-selected", "false");
+      });
+      btn.classList.add("active");
+      btn.setAttribute("aria-selected", "true");
+      Object.entries(tabPanels).forEach(([key, panel]) => {
+        panel.hidden = key !== btn.dataset.tab;
+      });
+    });
+  });
+
   /* ---------------- 프로젝트 목록 ---------------- */
 
   async function loadAll() {
-    await Promise.all([loadProjects(), loadDuplicates()]);
+    await Promise.all([loadProjects(), loadDuplicates(), loadReservations()]);
   }
 
   async function loadProjects() {
@@ -253,6 +283,88 @@
     await loadAll();
   });
 
+  /* ---------------- 예약 관리 ---------------- */
+
+  async function loadReservations() {
+    const { reservations } = await api("/api/admin/reservations");
+    reservationsCache = reservations;
+    renderReservations();
+  }
+
+  function renderReservations() {
+    const counts = { received: 0, confirmed: 0, cancelled: 0 };
+    reservationsCache.forEach((r) => {
+      if (counts[r.status] !== undefined) counts[r.status] += 1;
+    });
+    const total = reservationsCache.length;
+    reservationSummaryEl.textContent =
+      `전체 ${total}건 · 접수 ${counts.received}건 · 확정 ${counts.confirmed}건 · 취소 ${counts.cancelled}건`;
+
+    const filtered =
+      currentReservationFilter === "all"
+        ? reservationsCache
+        : reservationsCache.filter((r) => r.status === currentReservationFilter);
+
+    // 방문 예정일이 가까운 순으로 정렬 (운영자가 다가오는 방문부터 확인하기 쉽도록)
+    const sorted = [...filtered].sort((a, b) =>
+      `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`)
+    );
+
+    if (sorted.length === 0) {
+      reservationTableBody.innerHTML = "";
+      reservationEmptyMsg.hidden = false;
+      return;
+    }
+    reservationEmptyMsg.hidden = true;
+
+    reservationTableBody.innerHTML = sorted
+      .map((r) => {
+        const statusOptions = Object.entries(RESERVATION_STATUS_LABELS)
+          .map(([value, label]) => `<option value="${value}" ${r.status === value ? "selected" : ""}>${label}</option>`)
+          .join("");
+        return `
+        <tr>
+          <td>${escapeHtml(r.date)}</td>
+          <td>${escapeHtml(r.time)}</td>
+          <td>${escapeHtml(r.name)}</td>
+          <td class="col-email">${escapeHtml(r.email)}</td>
+          <td class="col-purpose">${escapeHtml(r.purpose)}</td>
+          <td>${formatDateTime(r.createdAt)}</td>
+          <td>
+            <select class="reservation-status-select ${r.status}" data-id="${escapeAttr(r.id)}">
+              ${statusOptions}
+            </select>
+          </td>
+        </tr>`;
+      })
+      .join("");
+  }
+
+  reservationFiltersEl.addEventListener("click", (e) => {
+    const chip = e.target.closest(".filter-chip");
+    if (!chip) return;
+    currentReservationFilter = chip.dataset.status;
+    reservationFiltersEl.querySelectorAll(".filter-chip").forEach((c) => c.classList.toggle("active", c === chip));
+    renderReservations();
+  });
+
+  reservationTableBody.addEventListener("change", async (e) => {
+    const select = e.target.closest(".reservation-status-select");
+    if (!select) return;
+    const id = select.dataset.id;
+    const newStatus = select.value;
+
+    try {
+      await api(`/api/admin/reservations/${id}`, { method: "PATCH", body: JSON.stringify({ status: newStatus }) });
+      const reservation = reservationsCache.find((r) => r.id === id);
+      if (reservation) reservation.status = newStatus;
+      renderReservations();
+    } catch (err) {
+      alert(err.message);
+      renderReservations(); // 실패 시 select를 원래 상태로 되돌림
+    }
+  });
+
   /* ---------------- 유틸 ---------------- */
 
   function escapeHtml(str) {
@@ -271,6 +383,13 @@
     if (!iso) return "-";
     const d = new Date(iso);
     return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+  }
+  function formatDateTime(iso) {
+    if (!iso) return "-";
+    const d = new Date(iso);
+    const date = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+    const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    return `${date} ${time}`;
   }
 
   checkSession();

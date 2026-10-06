@@ -6,6 +6,12 @@
 const crypto = require("crypto");
 const { Pool } = require("pg");
 const { normalizeInput, assertValid, notFoundError } = require("./validate");
+const {
+  normalizeReservationInput,
+  assertValidReservation,
+  assertValidStatus,
+  notFoundError: reservationNotFoundError,
+} = require("./validate-reservation");
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -15,6 +21,11 @@ const pool = new Pool({
 
 const SELECT_COLUMNS = `
   id, title, role, description, date, participants, notes, status,
+  created_at AS "createdAt", updated_at AS "updatedAt"
+`;
+
+const RESERVATION_COLUMNS = `
+  id, name, email, date, time, purpose, status,
   created_at AS "createdAt", updated_at AS "updatedAt"
 `;
 
@@ -29,6 +40,20 @@ async function init() {
       participants TEXT NOT NULL DEFAULT '',
       notes TEXT NOT NULL DEFAULT '',
       status TEXT NOT NULL DEFAULT 'draft',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS reservations (
+      id UUID PRIMARY KEY,
+      name TEXT NOT NULL DEFAULT '',
+      email TEXT NOT NULL DEFAULT '',
+      date TEXT NOT NULL DEFAULT '',
+      time TEXT NOT NULL DEFAULT '',
+      purpose TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'received',
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
@@ -82,4 +107,48 @@ async function deleteMany(ids) {
   return readAll();
 }
 
-module.exports = { init, readAll, createProject, updateProject, deleteProject, deleteMany };
+/* -------------------------------------------------------------------- */
+/* 방문 예약 (reservations)                                               */
+/* -------------------------------------------------------------------- */
+
+async function readAllReservations() {
+  const { rows } = await pool.query(`SELECT ${RESERVATION_COLUMNS} FROM reservations ORDER BY created_at DESC`);
+  return rows;
+}
+
+async function createReservation(input) {
+  const data = normalizeReservationInput(input);
+  const candidate = { ...data, status: "received" };
+  assertValidReservation(candidate);
+
+  const id = crypto.randomUUID();
+  const { rows } = await pool.query(
+    `INSERT INTO reservations (id, name, email, date, time, purpose, status, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, 'received', now(), now())
+     RETURNING ${RESERVATION_COLUMNS}`,
+    [id, data.name, data.email, data.date, data.time, data.purpose]
+  );
+  return rows[0];
+}
+
+async function updateReservationStatus(id, status) {
+  assertValidStatus(status);
+  const { rows } = await pool.query(
+    `UPDATE reservations SET status = $2, updated_at = now() WHERE id = $1 RETURNING ${RESERVATION_COLUMNS}`,
+    [id, status]
+  );
+  if (rows.length === 0) throw reservationNotFoundError();
+  return rows[0];
+}
+
+module.exports = {
+  init,
+  readAll,
+  createProject,
+  updateProject,
+  deleteProject,
+  deleteMany,
+  readAllReservations,
+  createReservation,
+  updateReservationStatus,
+};

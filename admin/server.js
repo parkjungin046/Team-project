@@ -23,7 +23,15 @@ const express = require("express");
 const session = require("express-session");
 
 const { verifyPassword, requireAdmin } = require("./lib/auth");
-const { isLocked, recordFailure, recordSuccess, MAX_ATTEMPTS } = require("./lib/rate-limit");
+const {
+  isLocked,
+  recordFailure,
+  recordSuccess,
+  MAX_ATTEMPTS,
+  isReservationLimited,
+  recordReservationSubmission,
+  RESERVATION_MAX,
+} = require("./lib/rate-limit");
 const store = require("./lib/store");
 const { findDuplicateGroups } = require("./lib/dedupe");
 const { generatePublicDataFile } = require("./lib/generate-public-data");
@@ -194,6 +202,29 @@ app.post("/api/admin/duplicates/resolve", requireAdmin, async (req, res) => {
 });
 
 /* -------------------------------------------------------------------- */
+/* 방문 예약 관리 (모두 로그인 필요)                                        */
+/* -------------------------------------------------------------------- */
+
+app.get("/api/admin/reservations", requireAdmin, async (req, res) => {
+  try {
+    const reservations = await store.readAllReservations();
+    res.json({ reservations });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch("/api/admin/reservations/:id", requireAdmin, async (req, res) => {
+  try {
+    const { status } = req.body || {};
+    const reservation = await store.updateReservationStatus(req.params.id, status);
+    res.json({ reservation });
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ error: err.message });
+  }
+});
+
+/* -------------------------------------------------------------------- */
 /* 공개 API (로그인 불필요) — 실제 웹사이트가 실시간으로 가져가는 용도.       */
 /* 온라인(Render 등)에 배포했을 때만 의미가 있다. 로컬 전용으로 쓸 때는       */
 /* 공개 사이트가 이 주소를 모르므로 그냥 무시된다.                          */
@@ -219,6 +250,32 @@ app.get("/api/projects", async (req, res) => {
     res.json({ projects: published });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// 방문 예약 폼(reservation.html)이 다른 도메인(정적 사이트)에서 제출하므로
+// CORS 프리플라이트(OPTIONS)까지 허용해야 한다.
+app.options("/api/reservations", (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.sendStatus(204);
+});
+
+app.post("/api/reservations", async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
+  const ip = req.ip;
+  if (isReservationLimited(ip)) {
+    return res.status(429).json({ error: `너무 많은 요청입니다. 잠시 후 다시 시도하세요. (최대 ${RESERVATION_MAX}회/10분)` });
+  }
+
+  try {
+    const reservation = await store.createReservation(req.body || {});
+    recordReservationSubmission(ip);
+    res.status(201).json({ ok: true, id: reservation.id });
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 

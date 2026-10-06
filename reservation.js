@@ -10,6 +10,11 @@
 // formspree.io 대시보드에서 이미 설정되어 있다.
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mgaovvav";
 
+// 관리자 백엔드(Render)가 연결되어 있으면, 관리자 페이지의 "예약 관리" 탭에서도
+// 볼 수 있도록 같은 내용을 그쪽에도 함께 저장한다. index.html과 동일하게
+// window.PORTFOLIO_API_BASE가 비어 있으면 건너뛴다.
+const ADMIN_API_BASE = window.PORTFOLIO_API_BASE || "";
+
 // 2026년 대한민국 법정공휴일·대체공휴일 (공개된 공휴일 정보를 종합해 수기로 반영).
 // 연도가 바뀌면 이 목록을 갱신해야 한다.
 const KOREAN_HOLIDAYS = {
@@ -325,8 +330,10 @@ async function finalizeReservation() {
   confirmBtnLabel.textContent = "전송 중...";
   errorMsg.hidden = true;
 
-  // 로컬 백업: 이메일 전송 성공 여부와 무관하게 방문자 브라우저에도 남겨 둔다.
+  // 로컬 백업 + 관리자 백엔드 동기화(연결되어 있다면): 둘 다 이메일 전송 결과와
+  // 무관하게 처리하고, 느리거나 실패해도 아래 Formspree 전송 흐름을 막지 않는다.
   saveReservationLocally(reservation);
+  syncReservationToAdmin(reservation);
 
   let emailSent = false;
   try {
@@ -368,6 +375,26 @@ async function sendReservationEmail(reservation) {
     }),
   });
   return response.ok;
+}
+
+// 관리자 백엔드(연결되어 있다면)에도 같은 내용을 보내, 관리자 페이지의 "예약 관리"
+// 탭에서 요약·필터와 함께 확인할 수 있게 한다. 실패해도(백엔드 미배포, 잠든 상태 등)
+// 방문자에게는 영향 없음 — Formspree 이메일 전송이 이 기능의 주 경로이기 때문.
+function syncReservationToAdmin(reservation) {
+  if (!ADMIN_API_BASE) return;
+  fetch(`${ADMIN_API_BASE.replace(/\/$/, "")}/api/reservations`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: reservation.name,
+      email: reservation.email,
+      date: reservation.date,
+      time: reservation.time,
+      purpose: reservation.purpose,
+    }),
+  }).catch((err) => {
+    console.warn("관리자 백엔드로 예약 동기화에 실패했습니다. (이메일 전송에는 영향 없음)", err);
+  });
 }
 
 // 이메일 전송 성공 여부와 무관하게, 제출 내용을 방문자의 브라우저(localStorage)에도 남겨 둔다.

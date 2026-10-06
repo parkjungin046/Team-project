@@ -7,6 +7,9 @@ node_modules/
 # 관리자 원본 데이터 (초안 포함 - 공개 전 내용이므로 저장소에 올리지 않음)
 data/projects.json
 
+# 방문 예약자 개인정보(이름/이메일/방문목적)가 담기므로 저장소에 올리지 않음
+data/reservations.json
+
 # 로그
 *.log
 npm-debug.log*

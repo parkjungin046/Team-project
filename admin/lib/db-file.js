@@ -7,9 +7,16 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { normalizeInput, assertValid, notFoundError } = require("./validate");
+const {
+  normalizeReservationInput,
+  assertValidReservation,
+  assertValidStatus,
+  notFoundError: reservationNotFoundError,
+} = require("./validate-reservation");
 
 const DATA_DIR = path.join(__dirname, "..", "..", "data");
 const DATA_FILE = path.join(DATA_DIR, "projects.json");
+const RESERVATIONS_FILE = path.join(DATA_DIR, "reservations.json");
 
 function ensureStore() {
   if (!fs.existsSync(DATA_DIR)) {
@@ -17,6 +24,9 @@ function ensureStore() {
   }
   if (!fs.existsSync(DATA_FILE)) {
     fs.writeFileSync(DATA_FILE, "[]\n", "utf-8");
+  }
+  if (!fs.existsSync(RESERVATIONS_FILE)) {
+    fs.writeFileSync(RESERVATIONS_FILE, "[]\n", "utf-8");
   }
 }
 
@@ -33,6 +43,21 @@ function readAllSync() {
 function writeAllSync(projects) {
   ensureStore();
   fs.writeFileSync(DATA_FILE, JSON.stringify(projects, null, 2) + "\n", "utf-8");
+}
+
+function readAllReservationsSync() {
+  ensureStore();
+  const raw = fs.readFileSync(RESERVATIONS_FILE, "utf-8");
+  try {
+    return JSON.parse(raw || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function writeAllReservationsSync(reservations) {
+  ensureStore();
+  fs.writeFileSync(RESERVATIONS_FILE, JSON.stringify(reservations, null, 2) + "\n", "utf-8");
 }
 
 async function init() {
@@ -94,4 +119,53 @@ async function deleteMany(ids) {
   return next;
 }
 
-module.exports = { init, readAll, createProject, updateProject, deleteProject, deleteMany, DATA_FILE };
+/* -------------------------------------------------------------------- */
+/* 방문 예약 (reservations)                                               */
+/* -------------------------------------------------------------------- */
+
+async function readAllReservations() {
+  return readAllReservationsSync();
+}
+
+async function createReservation(input) {
+  const reservations = readAllReservationsSync();
+  const now = new Date().toISOString();
+  const reservation = {
+    id: crypto.randomUUID(),
+    ...normalizeReservationInput(input),
+    status: "received",
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  assertValidReservation(reservation);
+
+  reservations.push(reservation);
+  writeAllReservationsSync(reservations);
+  return reservation;
+}
+
+async function updateReservationStatus(id, status) {
+  assertValidStatus(status);
+  const reservations = readAllReservationsSync();
+  const idx = reservations.findIndex((r) => r.id === id);
+  if (idx === -1) throw reservationNotFoundError();
+
+  const updated = { ...reservations[idx], status, updatedAt: new Date().toISOString() };
+  reservations[idx] = updated;
+  writeAllReservationsSync(reservations);
+  return updated;
+}
+
+module.exports = {
+  init,
+  readAll,
+  createProject,
+  updateProject,
+  deleteProject,
+  deleteMany,
+  DATA_FILE,
+  readAllReservations,
+  createReservation,
+  updateReservationStatus,
+};

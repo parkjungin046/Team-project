@@ -30,4 +30,39 @@ function recordSuccess(ip) {
   attempts.delete(ip);
 }
 
-module.exports = { isLocked, recordFailure, recordSuccess, MAX_ATTEMPTS };
+/**
+ * 공개 예약 제출(POST /api/reservations)용 레이트 리미터.
+ * 로그인 시도 제한과 별도의 맵을 사용한다 (용도가 다르므로 섞이지 않게).
+ */
+const RESERVATION_MAX = 5;
+const RESERVATION_WINDOW_MS = 10 * 60 * 1000; // 10분
+const reservationAttempts = new Map();
+
+function isReservationLimited(ip) {
+  const record = reservationAttempts.get(ip);
+  if (!record) return false;
+  if (Date.now() - record.firstAttemptAt > RESERVATION_WINDOW_MS) {
+    reservationAttempts.delete(ip);
+    return false;
+  }
+  return record.count >= RESERVATION_MAX;
+}
+
+function recordReservationSubmission(ip) {
+  const record = reservationAttempts.get(ip);
+  if (!record || Date.now() - record.firstAttemptAt > RESERVATION_WINDOW_MS) {
+    reservationAttempts.set(ip, { count: 1, firstAttemptAt: Date.now() });
+  } else {
+    record.count += 1;
+  }
+}
+
+module.exports = {
+  isLocked,
+  recordFailure,
+  recordSuccess,
+  MAX_ATTEMPTS,
+  isReservationLimited,
+  recordReservationSubmission,
+  RESERVATION_MAX,
+};

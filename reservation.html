@@ -289,6 +289,14 @@
 
   <!-- Portfolio Data (헤더/푸터의 이름·학과 정보만 동기화하는 데 사용) -->
   <script src="portfolio-data.js"></script>
+
+  <!-- 관리자 백엔드(Render)를 배포했다면, 예약 제출 내용이 관리자 페이지의
+       "예약 관리" 탭에도 함께 저장되도록 그 주소를 연결한다. 비워두면 이 연동은
+       건너뛰고 Formspree 이메일 전송만 동작한다. -->
+  <script>
+    window.PORTFOLIO_API_BASE = "https://portfolio-admin-pefw.onrender.com";
+  </script>
+
   <script src="app.js"></script>
   <script src="reservation.js"></script>
 </body>

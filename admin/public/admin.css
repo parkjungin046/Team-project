@@ -298,3 +298,119 @@ input::placeholder {
   cursor: pointer;
   white-space: nowrap;
 }
+
+/* ---------- 탭 전환 ---------- */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 10px 16px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--admin-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.admin-tab-btn:hover { color: var(--admin-text); }
+
+.admin-tab-btn.active {
+  color: var(--admin-green-dark);
+  border-bottom-color: var(--admin-green);
+}
+
+/* ---------- 예약 관리 ---------- */
+.reservation-panel {
+  background: var(--admin-card);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.reservation-summary {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--admin-text);
+}
+
+.reservation-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.filter-chip {
+  border: 1px solid var(--admin-border);
+  background: #fff;
+  color: var(--admin-text);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-chip:hover { background: #f3f4f6; }
+
+.filter-chip.active {
+  background: var(--admin-green);
+  border-color: var(--admin-green);
+  color: #fff;
+}
+
+.reservation-table-wrap { overflow-x: auto; }
+
+.reservation-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 720px;
+}
+
+.reservation-table th,
+.reservation-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--admin-border);
+  vertical-align: top;
+}
+
+.reservation-table th {
+  color: var(--admin-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.reservation-table td.col-purpose {
+  max-width: 260px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.reservation-table td.col-email {
+  word-break: break-all;
+}
+
+.reservation-status-select {
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: #fff;
+}
+
+.reservation-status-select.received { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.reservation-status-select.confirmed { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+.reservation-status-select.cancelled { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
