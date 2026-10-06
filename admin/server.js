@@ -279,6 +279,18 @@ app.post("/api/reservations", async (req, res) => {
   }
 });
 
+// 예약 폼이 "이미 예약된 날짜·시간"을 선택하지 못하도록, 취소되지 않은 예약들의
+// 날짜·시간만 공개한다 (이름/이메일/방문목적 등 개인정보는 포함하지 않음).
+app.get("/api/reservations/booked", async (req, res) => {
+  try {
+    const booked = await store.readBookedSlots();
+    res.set("Access-Control-Allow-Origin", "*");
+    res.json({ booked });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, storage: store.isPostgres ? "postgres" : "file" });
 });

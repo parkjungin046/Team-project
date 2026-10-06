@@ -44,4 +44,17 @@ function notFoundError() {
   return err;
 }
 
-module.exports = { STATUSES, normalizeReservationInput, assertValidReservation, assertValidStatus, notFoundError };
+function conflictError() {
+  const err = new Error("이미 예약된 날짜·시간입니다.");
+  err.statusCode = 409;
+  return err;
+}
+
+module.exports = {
+  STATUSES,
+  normalizeReservationInput,
+  assertValidReservation,
+  assertValidStatus,
+  notFoundError,
+  conflictError,
+};

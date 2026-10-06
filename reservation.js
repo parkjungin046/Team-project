@@ -51,6 +51,10 @@ const resState = {
   selectedDateLabel: "",
 };
 
+// 이미 예약된(취소 제외) 날짜·시간을 "YYYY-MM-DD" -> Set("HH:mm") 형태로 들고 있는다.
+// 예약 폼 로딩 시 한 번 불러오고, 충돌(409) 발생 시 다시 갱신한다.
+let bookedSlotsByDate = new Map();
+
 document.addEventListener("DOMContentLoaded", () => {
   const calendarGrid = document.getElementById("calendar-grid");
   if (!calendarGrid) return; // 예약 페이지가 아니면 아무 것도 하지 않음
@@ -62,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCalendar();
   populateTimeOptions(null);
   validateReservationForm();
+  loadBookedSlots(); // 백그라운드에서 불러오고, 끝나면 필요 시 드롭다운을 다시 그린다
 
   document.getElementById("cal-prev-btn").addEventListener("click", () => shiftMonth(-1));
   document.getElementById("cal-next-btn").addEventListener("click", () => shiftMonth(1));
@@ -233,16 +238,23 @@ function populateTimeOptions(dateStr) {
   const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
   const isToday = dateStr === todayStr;
   const nowMinutes = today.getHours() * 60 + today.getMinutes();
+  const bookedTimes = (dateStr && bookedSlotsByDate.get(dateStr)) || new Set();
 
   let anyAvailable = false;
 
   getTimeSlots().forEach((slot) => {
     const [h, m] = slot.split(":").map(Number);
     if (isToday && h * 60 + m <= nowMinutes) return; // 오늘 날짜면 이미 지난 시간은 제외
-    anyAvailable = true;
+
+    const isBooked = bookedTimes.has(slot);
     const opt = document.createElement("option");
     opt.value = slot;
-    opt.textContent = slot;
+    opt.textContent = isBooked ? `${slot} (완료)` : slot;
+    if (isBooked) {
+      opt.disabled = true; // 이미 예약된 시간 — 선택 불가
+    } else {
+      anyAvailable = true;
+    }
     select.appendChild(opt);
   });
 
@@ -252,9 +264,49 @@ function populateTimeOptions(dateStr) {
   } else {
     timeGroup.classList.remove("has-error");
     select.disabled = false;
-    const stillValid = Array.from(select.options).some((o) => o.value === previousValue);
+    const stillValid = Array.from(select.options).some((o) => o.value === previousValue && !o.disabled);
     select.value = stillValid ? previousValue : "";
   }
+}
+
+/* ==========================================================================
+   예약 가능 시간 조회 (중복 예약 방지)
+   ========================================================================== */
+
+// 관리자 백엔드에서 "취소되지 않은" 예약들의 날짜·시간만 불러온다 (개인정보 없음).
+// 연결이 안 돼 있거나 느려도(Render 슬립 등) 예약 폼 자체는 계속 쓸 수 있어야 하므로,
+// 일정 시간 안에 응답이 없으면 조용히 포기하고 "알 수 없음"으로 둔다.
+async function loadBookedSlots() {
+  if (!ADMIN_API_BASE) return;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const res = await fetch(`${ADMIN_API_BASE.replace(/\/$/, "")}/api/reservations/booked`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) return;
+
+    const data = await res.json();
+    const map = new Map();
+    (data.booked || []).forEach(({ date, time }) => {
+      if (!map.has(date)) map.set(date, new Set());
+      map.get(date).add(time);
+    });
+    bookedSlotsByDate = map;
+
+    if (resState.selectedDate) populateTimeOptions(resState.selectedDate); // 이미 날짜를 고른 상태였다면 반영
+  } catch (err) {
+    clearTimeout(timeoutId);
+    console.warn("예약 가능 시간 정보를 불러오지 못했습니다. (전체 시간이 선택 가능하게 표시됩니다)", err);
+  }
+}
+
+function markSlotBooked(dateStr, time) {
+  if (!bookedSlotsByDate.has(dateStr)) bookedSlotsByDate.set(dateStr, new Set());
+  bookedSlotsByDate.get(dateStr).add(time);
 }
 
 /* ==========================================================================
@@ -324,17 +376,33 @@ async function finalizeReservation() {
   const confirmBtn = document.getElementById("confirm-submit-btn");
   const confirmBtnLabel = document.getElementById("confirm-submit-btn-label");
   const errorMsg = document.getElementById("confirm-modal-error");
+  const errorMsgText = document.getElementById("confirm-modal-error-text");
   const originalLabel = confirmBtnLabel.textContent;
 
   confirmBtn.disabled = true;
-  confirmBtnLabel.textContent = "전송 중...";
+  confirmBtnLabel.textContent = "확인 중...";
   errorMsg.hidden = true;
 
-  // 로컬 백업 + 관리자 백엔드 동기화(연결되어 있다면): 둘 다 이메일 전송 결과와
-  // 무관하게 처리하고, 느리거나 실패해도 아래 Formspree 전송 흐름을 막지 않는다.
-  saveReservationLocally(reservation);
-  syncReservationToAdmin(reservation);
+  saveReservationLocally(reservation); // 항상 방문자 브라우저에도 백업
 
+  // 1) 먼저 관리자 백엔드에 "진짜" 예약을 만든다. 같은 날짜·시간이 그 사이 다른 사람에게
+  //    먼저 배정됐다면 여기서 409(conflict)로 막힌다 — 이게 중복 예약을 막는 최종 관문이다.
+  const backendResult = await submitToAdminBackend(reservation);
+
+  if (backendResult.outcome === "conflict") {
+    confirmBtn.disabled = false;
+    confirmBtnLabel.textContent = originalLabel;
+    errorMsgText.textContent = "죄송합니다. 방금 다른 분이 이 시간을 먼저 예약했습니다. 다른 시간을 선택해 주세요.";
+    errorMsg.hidden = false;
+    markSlotBooked(reservation.date, reservation.time);
+    populateTimeOptions(resState.selectedDate); // 드롭다운에 즉시 "(완료)"로 반영
+    await loadBookedSlots(); // 최신 전체 목록도 다시 받아온다
+    return;
+  }
+
+  // 2) 이메일 전송(Formspree). 백엔드에 이미 안전하게 저장됐다면(outcome === "created"),
+  //    이메일이 실패하더라도 예약 자체는 "예약 관리" 탭에 남아 있으므로 전체 성공으로 간주한다.
+  confirmBtnLabel.textContent = "전송 중...";
   let emailSent = false;
   try {
     emailSent = await sendReservationEmail(reservation);
@@ -345,13 +413,15 @@ async function finalizeReservation() {
   confirmBtn.disabled = false;
   confirmBtnLabel.textContent = originalLabel;
 
-  if (emailSent) {
+  if (emailSent || backendResult.outcome === "created") {
+    if (backendResult.outcome === "created") markSlotBooked(reservation.date, reservation.time);
     closeConfirmModal();
     resetReservationForm();
     if (typeof showToast === "function") {
-      showToast("🗓️ 예약 신청이 접수되어 이메일로 전달되었습니다!");
+      showToast("🗓️ 예약 신청이 접수되었습니다!");
     }
   } else {
+    errorMsgText.textContent = "전송에 실패했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.";
     errorMsg.hidden = false;
   }
 }
@@ -377,24 +447,42 @@ async function sendReservationEmail(reservation) {
   return response.ok;
 }
 
-// 관리자 백엔드(연결되어 있다면)에도 같은 내용을 보내, 관리자 페이지의 "예약 관리"
-// 탭에서 요약·필터와 함께 확인할 수 있게 한다. 실패해도(백엔드 미배포, 잠든 상태 등)
-// 방문자에게는 영향 없음 — Formspree 이메일 전송이 이 기능의 주 경로이기 때문.
-function syncReservationToAdmin(reservation) {
-  if (!ADMIN_API_BASE) return;
-  fetch(`${ADMIN_API_BASE.replace(/\/$/, "")}/api/reservations`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: reservation.name,
-      email: reservation.email,
-      date: reservation.date,
-      time: reservation.time,
-      purpose: reservation.purpose,
-    }),
-  }).catch((err) => {
-    console.warn("관리자 백엔드로 예약 동기화에 실패했습니다. (이메일 전송에는 영향 없음)", err);
-  });
+// 관리자 백엔드(연결되어 있다면)에 예약을 생성한다. 같은 날짜·시간이 이미 취소되지 않은
+// 상태로 존재하면 서버가 409를 돌려주므로, 그 경우를 명확히 구분해서 반환한다.
+// 백엔드가 느리거나(Render 슬립) 연결이 안 되어 있으면 일정 시간 후 포기하고, 이번 건은
+// 중복 방지 없이 Formspree 이메일 전송만으로 진행한다("skipped").
+async function submitToAdminBackend(reservation) {
+  if (!ADMIN_API_BASE) return { outcome: "skipped" };
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const response = await fetch(`${ADMIN_API_BASE.replace(/\/$/, "")}/api/reservations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: reservation.name,
+        email: reservation.email,
+        date: reservation.date,
+        time: reservation.time,
+        purpose: reservation.purpose,
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (response.status === 409) return { outcome: "conflict" };
+    if (!response.ok) {
+      console.warn("관리자 백엔드 저장에 실패했습니다. (이메일 전송은 계속 진행합니다)", response.status);
+      return { outcome: "skipped" };
+    }
+    return { outcome: "created" };
+  } catch (err) {
+    clearTimeout(timeoutId);
+    console.warn("관리자 백엔드에 연결하지 못했습니다. (이메일 전송은 계속 진행합니다)", err);
+    return { outcome: "skipped" };
+  }
 }
 
 // 이메일 전송 성공 여부와 무관하게, 제출 내용을 방문자의 브라우저(localStorage)에도 남겨 둔다.

@@ -11,7 +11,10 @@ const {
   assertValidReservation,
   assertValidStatus,
   notFoundError: reservationNotFoundError,
+  conflictError,
 } = require("./validate-reservation");
+
+const UNIQUE_VIOLATION = "23505"; // PostgreSQL 에러 코드: unique 제약 위반
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -57,6 +60,15 @@ async function init() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
+  `);
+
+  // 취소되지 않은 예약끼리는 같은 날짜·시간을 가질 수 없도록 DB 차원에서 강제한다.
+  // (동시에 두 요청이 들어와도 둘 중 하나는 반드시 이 제약에 걸려 실패하므로, 경쟁 상태로
+  // 인한 중복 예약이 원천적으로 불가능하다.)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS reservations_active_date_time_idx
+    ON reservations (date, time)
+    WHERE status <> 'cancelled';
   `);
 }
 
@@ -116,29 +128,45 @@ async function readAllReservations() {
   return rows;
 }
 
+// 취소되지 않은 예약들의 날짜·시간만 추려서 돌려준다 (공개 API, 예약 폼의 중복 선택 방지용).
+async function readBookedSlots() {
+  const { rows } = await pool.query(`SELECT date, time FROM reservations WHERE status <> 'cancelled'`);
+  return rows;
+}
+
 async function createReservation(input) {
   const data = normalizeReservationInput(input);
   const candidate = { ...data, status: "received" };
   assertValidReservation(candidate);
 
   const id = crypto.randomUUID();
-  const { rows } = await pool.query(
-    `INSERT INTO reservations (id, name, email, date, time, purpose, status, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, 'received', now(), now())
-     RETURNING ${RESERVATION_COLUMNS}`,
-    [id, data.name, data.email, data.date, data.time, data.purpose]
-  );
-  return rows[0];
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO reservations (id, name, email, date, time, purpose, status, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, 'received', now(), now())
+       RETURNING ${RESERVATION_COLUMNS}`,
+      [id, data.name, data.email, data.date, data.time, data.purpose]
+    );
+    return rows[0];
+  } catch (err) {
+    if (err.code === UNIQUE_VIOLATION) throw conflictError();
+    throw err;
+  }
 }
 
 async function updateReservationStatus(id, status) {
   assertValidStatus(status);
-  const { rows } = await pool.query(
-    `UPDATE reservations SET status = $2, updated_at = now() WHERE id = $1 RETURNING ${RESERVATION_COLUMNS}`,
-    [id, status]
-  );
-  if (rows.length === 0) throw reservationNotFoundError();
-  return rows[0];
+  try {
+    const { rows } = await pool.query(
+      `UPDATE reservations SET status = $2, updated_at = now() WHERE id = $1 RETURNING ${RESERVATION_COLUMNS}`,
+      [id, status]
+    );
+    if (rows.length === 0) throw reservationNotFoundError();
+    return rows[0];
+  } catch (err) {
+    if (err.code === UNIQUE_VIOLATION) throw conflictError();
+    throw err;
+  }
 }
 
 module.exports = {
@@ -149,6 +177,7 @@ module.exports = {
   deleteProject,
   deleteMany,
   readAllReservations,
+  readBookedSlots,
   createReservation,
   updateReservationStatus,
 };

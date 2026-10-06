@@ -12,7 +12,15 @@ const {
   assertValidReservation,
   assertValidStatus,
   notFoundError: reservationNotFoundError,
+  conflictError,
 } = require("./validate-reservation");
+
+// 같은 날짜·시간에 취소되지 않은 예약이 이미 있는지 확인 (excludeId: 본인 수정 시 자기 자신은 제외)
+function hasActiveConflict(reservations, date, time, excludeId) {
+  return reservations.some(
+    (r) => r.id !== excludeId && r.date === date && r.time === time && r.status !== "cancelled"
+  );
+}
 
 const DATA_DIR = path.join(__dirname, "..", "..", "data");
 const DATA_FILE = path.join(DATA_DIR, "projects.json");
@@ -127,6 +135,13 @@ async function readAllReservations() {
   return readAllReservationsSync();
 }
 
+// 취소되지 않은 예약들의 날짜·시간만 추려서 돌려준다 (공개 API, 예약 폼의 중복 선택 방지용).
+async function readBookedSlots() {
+  return readAllReservationsSync()
+    .filter((r) => r.status !== "cancelled")
+    .map((r) => ({ date: r.date, time: r.time }));
+}
+
 async function createReservation(input) {
   const reservations = readAllReservationsSync();
   const now = new Date().toISOString();
@@ -140,6 +155,12 @@ async function createReservation(input) {
 
   assertValidReservation(reservation);
 
+  // 동시에 같은 날짜·시간으로 두 건이 만들어지지 않도록 저장 직전에 다시 한번 확인한다.
+  // (파일 저장소는 동기 함수로만 동작하므로, 이 함수 안에서는 다른 요청이 끼어들 수 없다.)
+  if (hasActiveConflict(reservations, reservation.date, reservation.time)) {
+    throw conflictError();
+  }
+
   reservations.push(reservation);
   writeAllReservationsSync(reservations);
   return reservation;
@@ -151,7 +172,13 @@ async function updateReservationStatus(id, status) {
   const idx = reservations.findIndex((r) => r.id === id);
   if (idx === -1) throw reservationNotFoundError();
 
-  const updated = { ...reservations[idx], status, updatedAt: new Date().toISOString() };
+  const current = reservations[idx];
+  // "취소"에서 "접수/확정"으로 되돌릴 때도, 그 사이 같은 시간에 다른 예약이 생겼을 수 있으므로 확인한다.
+  if (status !== "cancelled" && hasActiveConflict(reservations, current.date, current.time, id)) {
+    throw conflictError();
+  }
+
+  const updated = { ...current, status, updatedAt: new Date().toISOString() };
   reservations[idx] = updated;
   writeAllReservationsSync(reservations);
   return updated;
@@ -166,6 +193,7 @@ module.exports = {
   deleteMany,
   DATA_FILE,
   readAllReservations,
+  readBookedSlots,
   createReservation,
   updateReservationStatus,
 };
