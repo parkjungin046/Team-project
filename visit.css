@@ -1,0 +1,238 @@
+/* ==========================================================================
+   VISIT & RESERVATION PAGES
+   Shared styles for visit.html (찾아오는 길 & 날씨) and reservation.html.
+   Loaded after style.css + theme-editorial.css, reuses their design tokens.
+   ========================================================================== */
+
+/* --- Page Intro (breadcrumb + title) --- */
+.page-intro {
+  padding: calc(var(--header-height) + 56px) 0 48px;
+}
+
+.page-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.page-breadcrumb a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.page-breadcrumb a:hover {
+  color: var(--text-primary);
+}
+
+.page-intro-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+}
+
+.page-intro-desc {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 640px;
+}
+
+/* --- Visit Grid: Map + Address / Weather --- */
+.visit-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.visit-map-card,
+.visit-info-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.visit-map-frame {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 0;
+  display: block;
+  filter: grayscale(0.08);
+}
+
+.visit-map-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.visit-map-link {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.visit-map-link:hover {
+  color: var(--primary-hover, var(--accent-mint));
+}
+
+.visit-info-card {
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.visit-info-block {
+  display: flex;
+  gap: 14px;
+}
+
+.visit-info-icon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--bg-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--primary-hover, var(--accent-mint));
+}
+
+.visit-info-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.visit-info-value {
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.visit-info-sub {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+.visit-info-divider {
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  margin: 0;
+}
+
+/* --- Weather Widget --- */
+.weather-widget {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.weather-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.weather-stat .value {
+  font-family: var(--font-heading);
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.weather-stat .unit {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.weather-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.weather-state-msg {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.weather-updated {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* --- Source Attribution (small, as required) --- */
+.source-note {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.source-note i {
+  margin-right: 4px;
+}
+
+/* --- Reservation CTA --- */
+.visit-cta-box {
+  margin-top: 36px;
+  padding: 36px 32px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.visit-cta-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.visit-cta-desc {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  margin-bottom: 22px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 860px) {
+  .visit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .visit-info-card {
+    padding: 22px 20px;
+  }
+
+  .visit-cta-box {
+    padding: 28px 20px;
+  }
+}

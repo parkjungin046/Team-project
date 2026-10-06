@@ -24,7 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initClipboardActions();
   initContactForm();
   initBackToTop();
-  initShareMenu();
+  // share-export.js가 로드된 페이지(index.html)에서만 존재하는 함수
+  if (typeof initShareMenu === "function") initShareMenu();
 });
 
 /* ==========================================================================
@@ -748,6 +749,7 @@ function initProjectModal() {
   const modalBackdrop = document.getElementById("project-modal");
   const modalContent = document.getElementById("modal-dynamic-content");
   const modalCloseBtn = document.getElementById("modal-close-btn");
+  if (!modalBackdrop || !modalContent) return; // 프로젝트 모달이 없는 페이지(visit.html 등)에서는 종료
 
   // Event delegation to catch dynamically created open buttons
   document.addEventListener("click", (e) => {
