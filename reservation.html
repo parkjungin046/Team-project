@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>방문 예약 | 박정인 포트폴리오</title>
+  <meta name="description" content="박정인 포트폴리오 방문 예약 페이지입니다. (준비 중)">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+
+  <!-- Fonts: Pretendard, Plus Jakarta Sans, JetBrains Mono -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="theme-editorial.css">
+  <link rel="stylesheet" href="visit.css">
+</head>
+<body data-theme="light">
+  <canvas id="gis-canvas"></canvas>
+
+  <!-- ========================================================================
+       HEADER & NAVIGATION BAR (index.html과 동일한 구조, 링크만 홈 기준으로 조정)
+       ======================================================================== -->
+  <header id="main-header">
+    <div class="header-container">
+      <a href="index.html#home" class="logo-area" aria-label="Home">
+        <div class="logo-icon-wrapper">
+          <i class="ph-bold ph-planet"></i>
+        </div>
+        <div class="logo-text-group">
+          <span class="logo-name" id="nav-logo-name">PARK JUNG IN</span>
+          <span class="logo-dept" id="nav-logo-dept">그린스마트시티 24'</span>
+        </div>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Main Navigation">
+        <ul class="nav-list">
+          <li><a href="index.html#home" class="nav-link">HOME</a></li>
+          <li><a href="index.html#about" class="nav-link">ABOUT</a></li>
+          <li><a href="index.html#projects" class="nav-link">PROJECT</a></li>
+          <li><a href="index.html#skills" class="nav-link">SKILLS</a></li>
+          <li><a href="index.html#career" class="nav-link">CAREER</a></li>
+          <li><a href="index.html#contact" class="nav-link">CONTACT</a></li>
+          <li><a href="visit.html" class="nav-link">VISIT</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="gis-crs-badge" title="Spatial Coordinate System">
+          <span class="pulse-dot"></span>
+          <span class="crs-text" id="nav-crs-text">EPSG:5186 (GRS80)</span>
+        </div>
+        <button id="theme-toggle" class="icon-btn" aria-label="다크/라이트 모드 전환" title="테마 변경">
+          <i class="ph-bold ph-moon" id="theme-icon"></i>
+        </button>
+        <button id="mobile-menu-btn" class="icon-btn mobile-only" aria-label="메뉴 열기">
+          <i class="ph-bold ph-list"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Navigation -->
+  <div id="mobile-drawer" class="mobile-drawer">
+    <div class="drawer-header">
+      <div class="logo-text-group">
+        <span class="logo-name" id="drawer-logo-name">PARK JUNG IN</span>
+        <span class="logo-dept" id="drawer-logo-dept">그린스마트시티학과</span>
+      </div>
+      <button id="drawer-close-btn" class="icon-btn" aria-label="메뉴 닫기">
+        <i class="ph-bold ph-x"></i>
+      </button>
+    </div>
+    <ul class="drawer-nav-list">
+      <li><a href="index.html#home" class="drawer-link"><i class="ph-bold ph-house"></i> HOME</a></li>
+      <li><a href="index.html#about" class="drawer-link"><i class="ph-bold ph-user"></i> ABOUT</a></li>
+      <li><a href="index.html#projects" class="drawer-link"><i class="ph-bold ph-folder-open"></i> PROJECT</a></li>
+      <li><a href="index.html#skills" class="drawer-link"><i class="ph-bold ph-wrench"></i> SKILLS</a></li>
+      <li><a href="index.html#career" class="drawer-link"><i class="ph-bold ph-trophy"></i> CAREER</a></li>
+      <li><a href="index.html#contact" class="drawer-link"><i class="ph-bold ph-paper-plane-tilt"></i> CONTACT</a></li>
+      <li><a href="visit.html" class="drawer-link"><i class="ph-bold ph-map-pin-area"></i> VISIT</a></li>
+    </ul>
+    <div class="drawer-footer">
+      <p>🌿 데이터와 자연을 잇는 미래 도시 계획가</p>
+    </div>
+  </div>
+  <div id="drawer-overlay" class="drawer-overlay"></div>
+
+  <main>
+    <!-- ======================================================================
+         RESERVATION PAGE (준비 중 — 내용은 추후 구성)
+         ====================================================================== -->
+    <section class="placeholder-section">
+      <div class="placeholder-box">
+        <i class="ph-bold ph-calendar-check" aria-hidden="true"></i>
+        <h1>방문 예약 페이지 준비 중입니다</h1>
+        <p>예약 폼과 일정 안내는 곧 추가될 예정입니다. 급한 문의는 포트폴리오의 연락처 섹션을 이용해 주세요.</p>
+        <a href="visit.html" class="btn btn-secondary">
+          <i class="ph-bold ph-arrow-left"></i>
+          <span>찾아오는 길로 돌아가기</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       FOOTER
+       ======================================================================== -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="logo-text-group">
+          <span class="logo-name" id="footer-logo-name">PARK JUNG IN</span>
+          <span class="logo-dept" id="footer-logo-dept">그린스마트시티학과 24학번 포트폴리오</span>
+        </div>
+        <p class="footer-motto">“자연의 생명력과 디지털 공간정보 기술이 공존하는 스마트 미래를 만듭니다.”</p>
+      </div>
+
+      <div class="footer-nav">
+        <h4>QUICK JUMP</h4>
+        <ul>
+          <li><a href="index.html#home">Home</a></li>
+          <li><a href="index.html#about">About Me</a></li>
+          <li><a href="index.html#projects">Projects</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+          <li><a href="visit.html">Visit & Reservation</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-rights">
+        <div class="crs-indicator">
+          <span class="pulse-dot"></span>
+          <span>Spatial System Active</span>
+        </div>
+        <p>© 2024-2026 Park Jung-in. All rights reserved.</p>
+        <p class="tech-note">Designed &amp; Built for Green Smart City &amp; GIS Portfolio</p>
+      </div>
+    </div>
+  </footer>
+
+  <button id="back-to-top" class="back-to-top-btn" aria-label="맨 위로 이동" title="맨 위로">
+    <i class="ph-bold ph-caret-up"></i>
+  </button>
+
+  <div id="toast" class="toast-container" role="alert" aria-live="polite">
+    <div class="toast-icon"><i class="ph-bold ph-check-circle"></i></div>
+    <div class="toast-message" id="toast-text">이메일 주소가 클립보드에 복사되었습니다!</div>
+  </div>
+
+  <!-- Portfolio Data (헤더/푸터의 이름·학과 정보만 동기화하는 데 사용) -->
+  <script src="portfolio-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
