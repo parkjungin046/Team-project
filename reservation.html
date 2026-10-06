@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>방문 예약 | 박정인 포트폴리오</title>
-  <meta name="description" content="박정인 포트폴리오 방문 예약 페이지입니다. (준비 중)">
+  <meta name="description" content="박정인 포트폴리오를 보고 방문을 계획하시는 분들을 위한 방문 예약 페이지입니다. 날짜·시간 선택과 방문자 정보 입력을 할 수 있습니다.">
 
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="theme-editorial.css">
   <link rel="stylesheet" href="visit.css">
+  <link rel="stylesheet" href="reservation.css">
 </head>
 <body data-theme="light">
   <canvas id="gis-canvas"></canvas>
@@ -96,20 +97,145 @@
 
   <main>
     <!-- ======================================================================
-         RESERVATION PAGE (준비 중 — 내용은 추후 구성)
+         PAGE INTRO
          ====================================================================== -->
-    <section class="placeholder-section">
-      <div class="placeholder-box">
-        <i class="ph-bold ph-calendar-check" aria-hidden="true"></i>
-        <h1>방문 예약 페이지 준비 중입니다</h1>
-        <p>예약 폼과 일정 안내는 곧 추가될 예정입니다. 급한 문의는 포트폴리오의 연락처 섹션을 이용해 주세요.</p>
-        <a href="visit.html" class="btn btn-secondary">
-          <i class="ph-bold ph-arrow-left"></i>
-          <span>찾아오는 길로 돌아가기</span>
-        </a>
+    <section class="page-intro">
+      <div class="section-container">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html#home">HOME</a>
+          <i class="ph-bold ph-caret-right"></i>
+          <a href="visit.html">VISIT</a>
+          <i class="ph-bold ph-caret-right"></i>
+          <span>RESERVATION</span>
+        </nav>
+        <h1 class="page-intro-title">방문 예약하기</h1>
+        <p class="page-intro-desc">
+          원하시는 방문 날짜와 시간을 선택하고, 연락받으실 정보를 입력해 주세요.
+          평일(공휴일 제외) 13:00~18:00 사이, 30분 단위로 예약하실 수 있습니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         RESERVATION FORM: CALENDAR + TIME / NAME · EMAIL · PURPOSE
+         ====================================================================== -->
+    <section class="content-section" style="padding-top: 0;">
+      <div class="section-container">
+        <div class="res-grid">
+          <!-- Calendar + Selected Date + Time -->
+          <div class="calendar-card">
+            <div class="calendar-header">
+              <button type="button" id="cal-prev-btn" class="calendar-nav-btn" aria-label="이전 달">
+                <i class="ph-bold ph-caret-left"></i>
+              </button>
+              <span class="calendar-title" id="calendar-title">YYYY년 M월</span>
+              <button type="button" id="cal-next-btn" class="calendar-nav-btn" aria-label="다음 달">
+                <i class="ph-bold ph-caret-right"></i>
+              </button>
+            </div>
+
+            <div class="calendar-weekdays" aria-hidden="true">
+              <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+            </div>
+
+            <div class="calendar-grid" id="calendar-grid" role="group" aria-label="예약 날짜 선택 (평일, 공휴일 제외)"></div>
+
+            <p class="source-note" style="margin-top: 12px;">
+              <i class="ph-bold ph-info"></i>주말과 공휴일은 선택할 수 없습니다.
+            </p>
+
+            <div class="selected-date-box" id="selected-date-box">
+              <i class="ph-bold ph-calendar-blank" aria-hidden="true"></i>
+              <span id="selected-date-text" class="placeholder">아직 선택한 날짜가 없습니다.</span>
+            </div>
+
+            <div class="form-group" style="margin-top: 18px;">
+              <label for="time-select">희망 시간 <span class="req">*</span></label>
+              <select id="time-select">
+                <option value="">선택해 주세요</option>
+              </select>
+              <span class="form-error">선택 가능한 시간이 없습니다. 다른 날짜를 선택해 주세요.</span>
+            </div>
+          </div>
+
+          <!-- Visitor Info -->
+          <div class="reservation-form-card">
+            <div class="form-group" id="name-group">
+              <label for="res-name">이름 <span class="req">*</span></label>
+              <input type="text" id="res-name" placeholder="예: 홍길동" autocomplete="name">
+              <span class="form-error">이름을 입력해 주세요.</span>
+            </div>
+
+            <div class="form-group" id="email-group">
+              <label for="res-email">답장받을 이메일 <span class="req">*</span></label>
+              <input type="email" id="res-email" placeholder="예: your.email@domain.com" autocomplete="email">
+              <span class="form-error">올바른 이메일 형식(예: name@domain.com)을 입력해 주세요.</span>
+            </div>
+
+            <div class="form-group" id="purpose-group">
+              <label for="res-purpose">방문 목적 <span class="req">*</span></label>
+              <textarea id="res-purpose" rows="6" class="textarea-lg" placeholder="방문 목적을 구체적으로 적어주시면 준비에 도움이 됩니다. (예: 포트폴리오 관련 협업 논의)"></textarea>
+              <span class="form-error">방문 목적을 입력해 주세요.</span>
+            </div>
+
+            <div class="agree-row">
+              <input type="checkbox" id="agree-checkbox">
+              <label for="agree-checkbox">입력하신 정보를 예약 상담 목적으로 운영자에게 전달하는 것에 동의합니다. <span class="req">*</span></label>
+            </div>
+
+            <button type="button" id="reservation-submit-btn" class="btn btn-primary btn-block" disabled>
+              <i class="ph-bold ph-calendar-check"></i>
+              <span>예약하기</span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
+
+  <!-- RESERVATION CONFIRM MODAL -->
+  <div id="reservation-confirm-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="confirm-modal-title">
+    <div class="modal-dialog confirm-modal-dialog">
+      <button class="modal-close-btn" id="confirm-modal-close-btn" aria-label="닫기">
+        <i class="ph-bold ph-x"></i>
+      </button>
+      <div class="confirm-modal-content">
+        <h2 class="confirm-modal-title" id="confirm-modal-title">예약 내용을 확인해 주세요</h2>
+        <p class="confirm-modal-desc">아래 내용이 맞는지 마지막으로 확인한 뒤 "예약 확정하기"를 눌러주세요.</p>
+
+        <div class="confirm-row">
+          <span class="confirm-label">방문 날짜</span>
+          <span class="confirm-value" id="confirm-date">-</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">희망 시간</span>
+          <span class="confirm-value" id="confirm-time">-</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">이름</span>
+          <span class="confirm-value" id="confirm-name">-</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">답장받을 이메일</span>
+          <span class="confirm-value" id="confirm-email">-</span>
+        </div>
+        <div class="confirm-row confirm-row-block">
+          <span class="confirm-label">방문 목적</span>
+          <p class="confirm-value" id="confirm-purpose">-</p>
+        </div>
+
+        <p class="confirm-modal-note">
+          <i class="ph-bold ph-info"></i>
+          확정하시면 입력하신 정보가 예약 상담 목적으로 저장됩니다.
+        </p>
+
+        <div class="confirm-modal-actions">
+          <button type="button" class="btn btn-secondary" id="confirm-edit-btn">수정하기</button>
+          <button type="button" class="btn btn-primary" id="confirm-submit-btn">예약 확정하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ========================================================================
        FOOTER
@@ -158,5 +284,6 @@
   <!-- Portfolio Data (헤더/푸터의 이름·학과 정보만 동기화하는 데 사용) -->
   <script src="portfolio-data.js"></script>
   <script src="app.js"></script>
+  <script src="reservation.js"></script>
 </body>
 </html>

@@ -1,0 +1,299 @@
+/* ==========================================================================
+   RESERVATION PAGE (reservation.html)
+   캘린더 + 희망 시간 + 방문자 정보 입력 + 확인 모달 스타일.
+   visit.css(공통 page-intro 등) 이후에 로드된다.
+   ========================================================================== */
+
+.res-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* --- Calendar Card --- */
+.calendar-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 26px 24px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.calendar-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.calendar-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-alt);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.calendar-nav-btn:not(:disabled):hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.calendar-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-cell-empty {
+  aspect-ratio: 1;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.cal-day:hover:not(:disabled) {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.cal-day.is-today {
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--border-focus);
+}
+
+.cal-day.is-selected {
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.cal-day:disabled {
+  color: var(--text-muted);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.selected-date-box {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-alt);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+}
+
+.selected-date-box i {
+  color: var(--primary-hover, var(--accent-mint));
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+.selected-date-box .placeholder {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* --- Right: Visitor Info Card --- */
+.reservation-form-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 28px 26px;
+}
+
+.form-group textarea.textarea-lg {
+  min-height: 150px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.form-group select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* --- Agreement Checkbox Row --- */
+.agree-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 14px 16px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.agree-row input[type="checkbox"] {
+  margin-top: 3px;
+  width: 17px;
+  height: 17px;
+  accent-color: var(--primary-hover, var(--accent-mint));
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.agree-row label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+/* --- Submit Button Disabled State --- */
+#reservation-submit-btn {
+  margin-top: 20px;
+}
+
+#reservation-submit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* --- Confirmation Modal --- */
+.confirm-modal-dialog {
+  max-width: 520px;
+}
+
+.confirm-modal-content {
+  padding: 36px 32px 32px;
+}
+
+.confirm-modal-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.confirm-modal-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.confirm-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.9rem;
+}
+
+.confirm-row:last-of-type {
+  border-bottom: none;
+}
+
+.confirm-label {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.confirm-value {
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: right;
+}
+
+.confirm-row-block {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.confirm-row-block .confirm-value {
+  text-align: left;
+  font-weight: 500;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.confirm-modal-note {
+  margin-top: 16px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.confirm-modal-actions .btn {
+  flex: 1;
+}
+
+/* --- Responsive --- */
+@media (max-width: 860px) {
+  .res-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .calendar-card,
+  .reservation-form-card {
+    padding: 20px 18px;
+  }
+
+  .confirm-modal-content {
+    padding: 28px 22px 24px;
+  }
+}
