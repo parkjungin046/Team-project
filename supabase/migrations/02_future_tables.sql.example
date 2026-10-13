@@ -1,0 +1,47 @@
+-- ============================================================================
+-- 아직 "할지 말지" 범위가 정해지지 않은 테이블 제안.
+-- 이 테이블들을 실제로 만들려면 관리자 페이지에 CRUD 화면도 새로 만들어야 의미가
+-- 있다(지금은 portfolio-data.js에 하드코딩되어 있어서 테이블만 만든다고 화면에
+-- 반영되지 않는다). 범위를 확정하면 이 파일 이름을 .sql로 바꾸고 번호를 매겨
+-- migrations/ 폴더의 정식 마이그레이션으로 승격시킨다.
+-- ============================================================================
+
+-- 자격증 · 대외활동 · 수상 (목록형 — projects와 같은 방식으로 draft/published 운용)
+CREATE TABLE IF NOT EXISTS career_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category TEXT NOT NULL,              -- certificate / activity / award
+  title TEXT NOT NULL DEFAULT '',
+  organization TEXT NOT NULL DEFAULT '',
+  date TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'draft',
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 기술 스택 (전부 공개 성격 — 숨길 이유가 없어 status 불필요)
+CREATE TABLE IF NOT EXISTS skill_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  icon TEXT,
+  sort_order INT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS skill_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category_id UUID NOT NULL REFERENCES skill_categories(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  sort_order INT NOT NULL DEFAULT 0
+);
+
+-- Contact 폼 메시지 (지금은 어디에도 저장되지 않는 더미 상태 — 전부 비공개/관리자 전용)
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT,
+  message TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'new',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
